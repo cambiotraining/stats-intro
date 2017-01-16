@@ -1,7 +1,7 @@
 ---
 title: Descriptive analyses and basic plotting in R
 author: Aaron Lun, Catalina Vallejos
-date: 11 December 2016
+date: 4 April 2017
 output: 
   html_document:
     fig_caption: false
@@ -381,11 +381,13 @@ lines(x[o], y[o])
 # Further on the power of R graphics
 
 A lot of graphical fine-tuning can be performed using the `par` command.
-Looking at `?par` reveals a **LOT** of widely applicable graphical parameters that are not listed in the documentation of individual plotting functions.
+Looking at `?par` reveals a _lot_ of widely applicable graphical parameters that are not listed in the documentation of individual plotting functions.
 
 * `mfrow`, to make multi-panel plots (advanced users may prefer `layout`)
 * `mar`, to modify the margins of the plot
 * `cex.axis` and `cex.label`, to change the font size of axis labels
+
+If you get lost or confused, remember: Dr Google is your friend (if you know what to ask).
 
 An alternative to Rstudio's export is to save R plots directly to file with various graphics devices.
 For example, to save to PDF:

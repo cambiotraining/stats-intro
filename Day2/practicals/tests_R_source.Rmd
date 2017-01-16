@@ -1,7 +1,10 @@
 ---
 title: Simple hypothesis testing in R
 author: Aaron Lun, Catalina Vallejos
-date: 11 November 2016
+date: 4 April 2017
+output:
+   html_document:
+      fig_caption: false
 ---
 
 # Testing ratios in contigency tables
