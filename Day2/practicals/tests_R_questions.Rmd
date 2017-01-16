@@ -1,0 +1,383 @@
+---
+title: Simple hypothesis testing in R
+author: Aaron Lun, Catalina Vallejos
+date: 11 November 2016
+---
+
+# Testing ratios in contigency tables
+
+## Using Fisher's exact test
+
+We'll be using the classic tea-tasting experiment. 
+From `?fisher.test`:
+
+> A British woman claimed to be able to distinguish whether milk or
+> tea was added to the cup first.  To test, she was given 8 cups of
+> tea, in four of which milk was added first.  The null hypothesis
+> is that there is no association between the true order of pouring
+> and the woman's guess, the alternative that there is a positive
+> association (that the odds ratio is greater than 1).
+
+Let's set up the data set first.
+Below is data for 8 cups:
+
+```{r}
+true.first <- rep(c("Milk", "Tea"), each=4)
+guess.first <- rep(c("Milk", "Tea", "Milk", "Tea"), c(3,1,1,3))
+```
+
+Can you summarize this into a 2-by-2 contingency table?
+
+```{r}
+# Put some code here!
+```
+
+For 2-by-2 tables, Fisher's exact test works by testing whether the "odds ratio" is equal to 1.
+The "odds ratio" is calculated as a ratio of odds (obviously) between our two experimental conditions, i.e., milk or tea added first.
+What are the odds that the guess was milk in the cases where milk was added first? 3:1.
+What are the odds that the guess was milk in the cases where tea was added first? 1:3.
+Thus, the sample odds ratio between milk/tea first is 3:1/1:3 = 9.
+
+Now, apply `fisher.test` to the table.
+
+```{r}
+# Put some code here!
+```
+
+How do I extract the _p_-value?
+How do I extract the odds ratio? (__Note:__ this is slightly different from the sample odds ratio.)
+Does it matter if I switch the rows and columns?
+
+```{r}
+# Put some code here!
+```
+
+
+A key assumption is:
+
+- Observations are **independent**, randomly sampled from a population
+
+Here, the "population" refers to the set of all possible observations taken from this particular woman (not from the population of all women!). 
+Each observation (i.e., the guess for each cup) is assumed to be independent of the others.
+
+_Note:_ What is the null hypothesis for larger contingency tables?
+
+```{r}
+true.first <- rep(c("Milk", "Tea", "Sugar"), each=6)
+guess.first <- sample(c("Milk", "Tea", "Sugar"), 18, replace=TRUE)
+tea.data.exp <- table(true.first, guess.first)
+fisher.test(tea.data.exp) # What is this testing?
+```
+
+## Using Pearson's Chi-squared test of independence
+
+Fisher's exact test computes the p-value exactly for small sample sizes.
+For large sample sizes, we can use Pearson's Chi-squared test instead.
+Let's mock up some data by imagining we repeated our tea experiment 100 times:
+
+```{r}
+true.first <- rep(c("Milk", "Tea"), each=4*100)
+guess.first <- sample(c("Milk", "Tea", "Milk", "Tea"), 800, replace=TRUE)
+tea.data.more <- table(true.first, guess.first)
+tea.data.more
+```
+
+Try applying Fisher's exact test and Pearson's Chi-squared test on this data.
+Do the p-values match up between the tests?
+
+```{r}
+# Put some code here!
+```
+
+In addition to the **independence** assumption (as in the Fisher's exact test), we require that:
+
+- at least 80% of the cells have an **expected** frequency of 5 or greater
+
+- none of the cells have an **expected** frequency less than 1 
+
+This is necessary for the distribution of the test statistic to be accurately approximated with a chi-squared distribution.
+What happens if there aren't enough observations (try it out on `tea.data`)?
+
+```{r}
+# Put some code here!
+```
+
+What happens if we have really large tables?
+
+```{r}
+true.first <- rep(c("Milk", "Tea", "Sugar"), each=600)
+guess.first <- sample(c("Milk", "Tea", "Sugar"), 1800, replace=TRUE)
+tea.data.exp.more <- table(true.first, guess.first)
+# Put some code here!
+```
+
+The Chi-squared test is also useful for testing goodness of fit.
+Say we have a bunch of F2 mice.
+Do their genotypes follow the 1:2:1 Mendelian ratio (hint: use the `p` argument in `chisq.test`)?
+
+```{r}
+genotypes <- rep(c("AA", "Aa", "aa"), c(500, 600, 100))
+# Put some code here!
+# Create a table of genotypes:
+# Create a vector of relative expected frequencies:
+genoexp <- c(0.25, 0.5, 0.25)
+```
+
+# Using _t_-tests of various flavours
+
+## One sample t-test
+
+This is useful for comparing our observations against an expected value under the null hypothesis.
+For example, I set the thermostat for my office to 25 degrees Celsius.
+To check whether it's at the intended temperature, I measure the temperature every day for a month.
+
+```{r}
+temp <- c(22.8, 22.7, 25.9, 22.0, 21.2, 24.4, 22.1, 22.6, 23.3, 22.2, 
+          22.5, 24.1, 22.4, 25.1, 24.1, 23.3, 23.3, 22.5, 23.8, 22.4, 
+          22.5, 23.4, 23.5, 22.5, 25.8, 23.8, 22.0, 22.0, 23.2, 22.0)
+```
+
+My null hypothesis is that the temperature is indeed 25 degrees Celsius.
+My alternative hypothesis is that, well, it's not.
+How can I apply a one-sample t-test to this data (hint: look at `mu` in `t.test`)?
+
+```{r}
+# Put some code here!
+```
+
+How can I extract the _p_-value, or the _t_-statistic?
+
+```{r}
+# Put some code here!
+```
+
+The one-sample $t$-test assumes that:
+
+- Observations are **independent**, randomly sampled from a population
+
+- Observations are **normally distributed**
+
+When the sample size is large (rule of thumb $n > 30$), the Central Limit Theorem allows us to use this test (even when the data is not normal!)
+
+Let's say I don't want to waste energy during winter, so I want to check whether the temperature is above 25 degrees Celsius.
+Here, my null hypothesis is that the temperature is below or equal to 25 degrees.
+My alternative hypothesis is that the temperature is above 25 degrees.
+This is a one-sided, one-sample t-test (whereas the previous test above was a two-sided, one-sample t-test).
+How can I do this with `t.test`?
+
+```{r}
+# Put some code here!
+```
+
+## Two sample t-test
+
+This is useful for comparing between observations from two groups.
+For example, let's say I run a chicken farm.
+I randomly select 20 chickens and feed them with soybean.
+I randomly select another 30 chickens and feed them with sunflower seeds.
+I measure their weights after 6 weeks:
+
+```{r}
+on.soy <- c(188, 229, 192, 207, 172, 151, 188, 173, 209, 158, 
+            211, 201, 205, 249, 214, 171, 198, 192, 161, 179)
+on.sun <- c(213, 262, 237, 223, 223, 268, 216, 276, 258, 269,
+            227, 252, 243, 286, 247, 277, 242, 233, 228, 211, 
+            230, 254, 268, 242, 223, 242, 224, 279, 227, 251)
+```
+
+I want to see if there is a difference in weight between the feed types.
+My null hypothesis is that the average weights are equal between the feed types.
+My alternative hypothesis is that they are not.
+How can I apply a two-sample t-test to this data?
+
+```{r}
+# Put some code here!
+```
+
+The two-sample $t$-test assumes that
+
+- **Within** each group, observations are **independent** and randomly drawn from a population
+
+- Observations are independent **between** the groups
+
+- Observations are normally distributed **within** each group
+
+As in the one-sample t-test, the Central Limit Theorem allows us to use this test for non-normal data when the sample size is large (rule of thumb: > 30 observations per group).
+
+The groups don't have to be of equal size (i.e., "unbalanced"), though greater power is usually achieved if they are equal.
+
+__Note:__ By default, `t.test` uses Welch's t-test, which allows the variances in each of the two groups to be unequal.
+If `var.equal=TRUE`, the code will use Student's t-test, which makes the additional assumption of equal variances in each of the two groups.
+It's usually best to stick to the default, which is more robust.
+
+```{r}
+# Put some code here!
+```
+
+Let's say I currently feed all my chickens on soybean.
+I want to know whether sunflower feed provides more weight gain - I don't care to know if it results in less weight. 
+Here, my null hypothesis is that the weight with sunflower feed is less than or equal to the weight with soybean.
+My alternative hypothesis is that the weight with sunflower feed is greater than that with soybean.
+This is a one-sided, two-sample t-test (whereas the previous test was a two-sided, two-sample t-test).
+How can I do this with `t.test`?
+
+```{r}
+# Put some code here!
+```
+
+## Paired samples t-test
+
+This is useful for comparing between groups where the samples are paired in some manner.
+For example, let's say I randomly sample 15 patients and collect healthy and diseased tissue from each.
+I measure the expression of a gene in each of healthy/disease samples (e.g., via qPCR):
+
+```{r}
+                    #1   #2   #3   #4   #5   #6   #7    #8   #9   #10  #11  #12  #13  #14  #15
+healthy.exprs <- c(6.9, 8.2, 9.0, 7.7, 6.5, 7.7, 5.5,  7.7, 7.6,  8.2, 6.5, 6.3, 8.7, 6.2, 8.4)
+disease.exprs <- c(8.3, 9.5, 9.8, 9.9, 6.6, 8.1, 9.5, 10.0, 8.7, 10.0, 7.5, 8.0, 8.5, 5.0, 8.5)
+```
+
+I want to know if the gene is differentially expressed upon disease.
+My null hypothesis is that the average expression of the gene is the same between disease and healthy groups.
+Could I use the two-sample t-test?
+How could I do a paired-sample t-test?
+
+```{r}
+# Put some code here!
+```
+
+Some of the assumptions are simular to the ones for two-sample $t$-test, namely:
+
+- **Within** each group, observations are **independent** and randomly drawn from a population
+
+However, the paired $t$-test does not assume independence between the groups. Instead, it assumes that:
+
+- Pairs of samples are randomly drawn from a population (i.e. each pair is **independent** from all the others)
+
+- Differences between paired observations are normally distributed.
+
+As before, the Central Limit Theorem allows us to use this test when the sample size is large (rule of thumb: at least 30 pairs of observations).
+
+Just like the other t-tests, this can also be two-sided or one-sided, depending on what alternative hypothesis is of interest.
+
+## Are the data normal?
+
+A key assumption of all the previous tests was that that data were normally distributed.
+We can check this with histograms:
+
+```{r}
+data1 <- rnorm(1000)
+data2 <- runif(1000)
+par(mfrow=c(1,2)) 
+hist(data1) # looks normal
+hist(data2) # doesn't look normal.
+```
+
+Alternatively, rather than trying to match the shape of the histogram to the shape of the normal distribution, we can use `qqnorm` and `qqline`.
+These plot the quantiles of the observed distribution (i.e., the value at 10%, 25%, 50%, etc.) against the expected quantiles for a normal distribution.
+A normally-distributed set of observations should lie on the diagonal of the quantile-quantile plot. 
+
+```{r}
+par(mfrow=c(1,2)) 
+# Put some code here!
+```
+
+How do I do this if I have two groups?
+
+```{r}
+g1 <- rnorm(1000, mean=1)
+g2 <- rnorm(1000, mean=2)
+par(mfrow=c(1,2)) 
+# Put some code here!
+```
+
+What if the data was paired?
+
+```{r}
+disease <- rnorm(1000, mean=1)
+healthy <- rnorm(1000, mean=2)
+# Put some code here!
+```
+
+Major deviations from the diagonal indicate there may be problems with using t-tests.
+(Though this is generally difficult to check with few observations in most experimental datasets.
+Formal tests for deviation from normality exist, but they are less useful than one would expect.)
+Whenever possible, it's generally safer to use non-parametric tests.
+
+# Non-parametric tests of various flavours
+
+## Using the Mann-Whitney U (two-sample Wilcoxon) test
+
+Let's re-use our chicken feeding example:
+
+```{r}
+on.soy <- c(188, 229, 192, 207, 172, 151, 188, 173, 209, 158, 
+            211, 201, 205, 249, 214, 171, 198, 192, 161, 179)
+on.sun <- c(213, 262, 237, 223, 223, 268, 216, 276, 258, 269,
+            227, 252, 243, 286, 247, 277, 242, 233, 228, 211, 
+            230, 254, 268, 242, 223, 242, 224, 279, 227, 251)
+```
+
+Our null hypothesis is that these observations come from the same distribution.
+By implication, this means that there is no shift in the average weight between feed types.
+We can test this hypothesis using `wilcox.test`:
+
+```{r}
+# Put some code here!
+```
+
+Key assumptions include:
+
+- observations are randomly sampled from the population corresponding to each group
+- observations are independent within and between groups
+
+No normality required.
+
+__Note:__ The test outcome can be interpreted as a shift in medians, but only if the shape of the distribution does not change between groups.
+It's worthwhile looking at the data as a sanity check during interpretation:
+
+```{r}
+boxplot(list(Soybean=on.soy, Sunflower=on.sun), ylab="Weight (g)") 
+```
+
+(It also is possible to do one-sided tests here, but they are somewhat difficult to interpret if the distribution changes.)
+
+## Using the Wilcoxon signed-rank test
+
+Let's re-use our patient example:
+
+```{r}
+                    #1   #2   #3   #4   #5   #6   #7    #8   #9   #10  #11  #12  #13  #14  #15
+healthy.exprs <- c(6.9, 8.2, 9.0, 7.7, 6.5, 7.7, 5.5,  7.7, 7.6,  8.2, 6.5, 6.3, 8.7, 6.2, 8.4)
+disease.exprs <- c(8.3, 9.5, 9.8, 9.9, 6.6, 8.1, 9.5, 10.0, 8.7, 10.0, 7.5, 8.0, 8.5, 5.0, 8.5)
+```
+
+Our null hypothesis is that the difference in expression is symmetrically distributed around zero.
+This indicates that there is no systematic difference between healthy and diseased tissue. 
+To test this, we use `wilcox.test` but with `paired=TRUE`:
+
+```{r}
+# Put some code here!
+```
+
+Key assumptions include:
+
+- pairs are randomly sampled from the population
+- each pair is independent of the others
+
+Again, no normality required.
+
+__Note:__ Asymmetry can cause rejection without any actual shift in the median or mean of the differences.
+Thus, it's useful to examine the distribution of differences to check for a shift:
+
+```{r}
+# Put some code here!
+```
+
+# Session information
+
+We save the session information into the report for posterity.
+
+```{r}
+sessionInfo()
+```

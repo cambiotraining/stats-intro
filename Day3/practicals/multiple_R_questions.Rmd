@@ -1,0 +1,126 @@
+---
+title: Introducing the multiple testing correction
+author: Aaron Lun and Cataline Vallejos
+date: 11 December 2016
+---
+
+```{r, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(error=FALSE)
+```
+
+# Introduction
+
+Why do we need to perform a multiple testing correction?
+
+1. Let's say I have 100 drugs, and I test each one for whether they cause a significant phenotype (e.g., tumour reduction, weight loss).
+2. In reality, _none_ of the drugs work, i.e., the null hypothesis of no effect is true for each phenotype.
+3. But, remember that the _p_-value is a random value that varies uniformly from 0 to 1 **when the null hypothesis is true!**
+4. I reject the null hypothesis at a _p_-value threshold of 0.05. This will yield, on average, 5 rejections out of my 100 tests.
+5. I will incorrectly conclude that ~5 of the drugs cause a significant effect.
+
+We need to correct our _p_-values for the fact that we did 100 tests.
+
+# Controlling the family-wise error rate
+
+Recall that the _p_-value corresponds to the type I error rate.
+That is, the probability of incorrectly rejecting a true null hypothesis.
+
+The family-wise error rate (FWER) is a similar value for a group of many hypotheses.
+It is the probability of incorrectly rejecting any true null hypothesis in this group, i.e., of making one or more type I errors.
+
+To illustrate, let's have a look at the example below, with 100 tests for a true null hypothesis and 10 tests for a false null hypothesis:
+
+```{r}
+true.nulls <- c(0.873, 0.914, 0.519, 0.209, 0.831, 0.610, 0.030, 0.516, 0.809, 0.052, 
+                0.114, 0.890, 0.653, 0.378, 0.118, 0.334, 0.200, 0.185, 0.438, 0.228, 
+                0.295, 0.218, 0.470, 0.025, 0.295, 0.521, 0.414, 0.869, 0.229, 0.309, 
+                0.300, 0.195, 0.470, 0.184, 0.682, 0.078, 0.462, 0.186, 0.259, 0.814, 
+                0.585, 0.215, 0.070, 0.029, 0.102, 0.742, 0.711, 0.994, 0.391, 0.506, 
+                0.472, 0.833, 0.182, 0.886, 0.840, 0.908, 0.838, 0.117, 0.126, 0.473, 
+                0.437, 0.947, 0.273, 0.601, 0.590, 0.066, 0.812, 0.512, 0.555, 0.388, 
+                0.852, 0.927, 0.618, 0.645, 0.718, 0.782, 0.949, 0.183, 0.051, 0.956, 
+                0.346, 0.646, 0.221, 0.010, 0.205, 0.262, 0.861, 0.018, 0.143, 0.998,
+                0.303, 0.427, 0.786, 0.332, 0.826, 0.724, 0.028, 0.648, 0.464, 0.226)
+false.nulls <- c(0.0006, 0.0002, 0.0004, 0.0001, 0.0007, 0.0003, 0.0009, 0.0005, 0.0008, 0.0002)
+all.pvals <- c(true.nulls, false.nulls)
+```
+
+Without any correction, how many null hypotheses would I reject at a _p_-value threshold of 0.05?
+Can you guess what would the FWER be on average (hint: if I repeated this experiment, would I incorrectly reject at least one true null hypothesis)?
+
+```{r}
+sum(all.pvals <= 0.05)
+which(all.pvals <= 0.05)
+```
+
+The simplest correction is to multiply the _p_-values by the total number of tests, i.e., the Bonferroni correction.
+This controls the FWER below the specified threshold.
+That is, if I only reject the tests with __adjusted__ p-values below 0.05, I would control the FWER (on average) at or below 5%.
+
+```{r}
+adj.pvals <- p.adjust(all.pvals, method="bonferroni")
+```
+
+How many null hypotheses do I reject now, at an adjusted _p_-value threshold of 0.05?
+How many true null hypotheses do I incorrectly reject?
+If I repeated this experiment many times, how many times would I incorrectly reject at least one true null hypothesis?
+
+```{r}
+# Put some code here!
+```
+
+In practice, a better approach is to use the Holm correction.
+This is slightly less conservative than the Bonferroni correction, while still controlling the FWER.
+
+```{r}
+adj.pvals <- p.adjust(all.pvals, method="holm")
+```
+
+# A word on experimental design and correcting p-values
+
+Correct for the number of tests performed to arrive at your conclusion:
+
+__Example 1:__ I tested the effect of 3 drugs on each of 5 phenotypes. 
+I only find a significant effect for one of the drug/phenotype combinations.
+However, I still did 15 tests to get to this result.
+
+__Example 2:__ I perform 10 replicate experiments to test for an effect of a treatment.
+I take the results from the "best-looking" 3 experiments to publish.
+But to get the best 3, I still had to do 10 experiments and their associated tests, so I should correct for all of them.
+
+Be honest with yourself regarding the number of tests - you will be most affected by your own false positives.
+
+Sometimes it's not so clear-cut, in which case you should consider the FWER and how many errors you are willing to tolerate during validation.
+
+__Example 3__: I want to test the effect of a knockout in various immune cell compartments.
+I assign PhD student X to test 5 T cell compartments, and PhD student Y to test 5 B cell compartments.
+What correction would each student perform? What correction should I perform when I get all the results?
+
+At the very least, you should correct across all tests shown in a single figure.
+
+# Controlling the false discovery rate
+
+For high-throughput experiments (e.g., genomics, phenotypic screens) involving hundreds to thousands of hypotheses, FWER control is too conservative.
+Rather, we choose to control the false discovery rate (FDR).
+This is the proportion of significant tests that are false positives, i.e., incorrectly rejected true null hypotheses.
+
+We compute FDR-adjusted _p_-values (also known as _q_-values) using the Benjamini-Hochberg method. 
+If I reject all tests with _q_-values below 0.05, the FDR across this set of rejected tests will be controlled (on average) at or below 5%.
+
+```{r}
+qvals <- p.adjust(all.pvals, method="BH")
+# Put some code here!
+```
+
+__Note:__ This will detect more than controlling the FWER, but at the cost of more errors.
+Let's say I have an analysis where I reject the null for 20 tests at a FDR of 5%.
+This means that each test has a 5% chance of being a false positive.
+The corresponding FWER would be `1-(1-0.05)^20`, i.e., there is a ~65% chance of at least one test being incorrectly rejected.
+If each test is important to me, I would prefer to control the FWER directly.
+
+# Wrapping up
+
+```{r}
+sessionInfo()
+```
+

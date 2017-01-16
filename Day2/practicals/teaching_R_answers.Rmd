@@ -1,0 +1,384 @@
+---
+title: Descriptive analyses and basic plotting in R
+author: Aaron Lun, Catalina Vallejos
+date: 11 December 2016
+output: 
+  html_document:
+    fig_caption: false
+---
+
+```{r, echo=FALSE, results="hide"}
+# Make compilation stop upon error:
+library(knitr)
+opts_chunk$set(error=FALSE)
+```
+
+# Introducing (R)markdown
+
+Use triple backticks to indicate code environments:
+
+```{r}
+a <- 1
+print(a)
+```
+
+Set `eval=FALSE` to show the code, but not run it:
+
+```{r, eval=FALSE}
+a <- 2
+print(a)
+```
+
+Set `echo=FALSE` to run the code, but not show it:
+
+```{r, echo=FALSE}
+a <- 3
+print(a)
+```
+
+Set `results="hide"` to hide the results:
+
+```{r, results="hide"}
+a <- 4
+print(a)
+```
+
+For plots, set `fig.width` and `fig.height` to change the dimensions of the output plot:
+
+```{r, fig.width=10, fig.height=6}
+hist(rnorm(10000), xlab="X", main="Normal distribution")
+```
+
+See `?opts_chunk` and http://yihui.name/knitr/options#chunk_options for more details.
+
+# Exploring the `cars` dataset
+
+## Initial examination of the data
+
+Let's look at one of the datasets that come with the R installation.
+From the documentation in `?cars`:
+
+> The data give the speed of cars and the distances taken to stop.
+> Note that the data were recorded in the 1920s.  
+
+We can inspect the first few elements:
+
+```{r}
+head(cars)
+```
+
+Or the last few elements - how would we do that?
+
+```{r}
+tail(cars) 
+```
+
+We can have a look at some summary statistics:
+
+```{r}
+summary(cars)
+```
+    
+What functions would we use to directly calculate:
+
+- the mean?
+- the median?
+- the standard deviation?
+- the mininimum or maximum?
+- the first or third quartiles?
+
+```{r}
+mean(cars$speed) # mean 
+median(cars$speed) # median 
+sd(cars$speed) # standard deviation 
+min(cars$speed) # minimum 
+max(cars$speed) # maximum 
+quantile(cars$speed, p=0.25) # first quartile 
+quantile(cars$speed, p=0.75) # third quartile 
+```
+
+## Generating some summary plots
+
+We can make histograms of the two sets of values:
+
+```{r}
+hist(cars$speed, xlab="Speed (mph)", main="Speed distribution")
+hist(cars$dist, xlab="Distance (ft)", main="Distance distribution")
+```
+
+Check out `?hist` to tune parameters, e.g., number of bars via `breaks`, fill colour with `col`.
+
+```{r}
+hist(cars$dist, breaks=20, col="grey") 
+```
+
+(__Note:__ how do you find out what arguments can be supplied to a function?)
+
+We can also make a scatter plot of speeds vs distances, below.
+Why is the speed on the x-axis?
+
+```{r}
+#       x-coord    y-coord
+plot(cars$speed, cars$dist, xlab="Speed (mph)", ylab="Distance (ft)")
+```
+
+Alternative method, using the formula notation `~`, i.e., plotting distance as a function of speed.
+
+```{r}
+#            y ~ x
+plot(cars$dist ~ cars$speed)
+```
+
+Check out `?plot` and `?par` for tunable parameters.
+
+```{r}
+plot(cars$speed, cars$dist, pch=15, cex=2, col="red")
+```
+
+# Exploring the `chickwts` dataset
+
+## Initial examination of the data
+
+From the documentation in `?chickwts`:
+
+> An experiment was conducted to measure and compare the effectiveness of various feed supplements on the growth rate of chickens.
+
+Examine the data:
+
+```{r}
+head(chickwts) 
+```
+
+Looking at some summaries of the data:
+
+```{r}
+summary(chickwts)  
+```
+
+Getting the number of samples for each feed type:
+
+```{r}
+table(chickwts$feed)
+```
+
+Previous `summary` computes values across all feed types - what's missing here?
+
+## Computing summaries for each feed type
+
+Using `dplyr`, we can calculate summary statistics for each feed group:
+
+```{r}
+library(dplyr)
+by.feed.type <- chickwts %>%
+  group_by(feed) %>%
+  summarise(min = min(weight),
+            q1 = quantile(weight, p = 0.25),
+            median = quantile(weight, p = 0.5),
+            mean = mean(weight),
+            q3 = quantile(weight, p = 0.75),
+            max = max(weight),
+            sd = sd(weight),
+            n = n())
+
+by.feed.type
+```
+
+Notice the use of the special function `n()`, which counts how many observations 
+there is in each group.
+
+
+## Making various types of plots
+
+### Making a boxplot
+
+Let's make a boxplot:
+
+```{r}
+boxplot(chickwts$weight ~ chickwts$feed, ylab="Chick weight (g)")
+```
+
+Again, using the formula notation to plot weight against the feed type.
+
+Check out `?boxplot` for tunable parameters:
+
+```{r}
+feed.cols <- c("blue", "red", "green", "yellow", "purple", "pink") 
+boxplot(chickwts$weight ~ chickwts$feed, ylab="Chickweight (g)", col=feed.cols) 
+```
+
+What do the points in the plot represent (hint: have a look at the `range` argument in `?boxplot`)?
+
+### Making a barplot
+
+We can also make a barplot of the mean weights for all feed types.
+
+```{r}
+barplot(by.feed.type$mean, ylab = "Mean weight (g)")
+```
+
+This would be more useful if it had labels for each bar. 
+How can we do this (hint: check out `?barplot` for extra parameters)?
+
+```{r}
+barplot(by.feed.type$mean, names.arg = by.feed.type$feed, ylab="Mean weight (g)") 
+barplot(by.feed.type$mean, names.arg = by.feed.type$feed, ylab="Mean weight (g)", col=feed.cols) 
+```
+
+__Advanced__: how do we add error bars?
+Let's compute the standard error:
+
+```{r}
+sd.wts <- by.feed.type$sd
+n.obs <- by.feed.type$n
+se.wts <- sd.wts/sqrt(n.obs)
+```
+
+What's the difference between `sd.wts` and `se.wts`, and which one should we use?
+
+Can you interpret what's happening in the code below?
+
+```{r}
+mean.wts <- by.feed.type$mean
+x.pos <- barplot(mean.wts, ylab="Mean weight (g)", names.arg = by.feed.type$feed, ylim=c(0, max(mean.wts)*1.1))
+mean.plus.se <- mean.wts + se.wts
+segments(x.pos, mean.wts, x.pos, mean.plus.se)
+segments(x.pos+0.1, mean.plus.se, x.pos-0.1, mean.plus.se)
+```
+
+* The first "segments" draws the vertical part of the error bar. 
+* The second "segments" draws the horizontal part of the error bar. 
+* The 'ylim' argument ensures that the entirety of the error bar is visible. 
+
+# Plotting lines with the `Orange` dataset
+
+## Initial examination of the data
+
+This dataset examines the growth of a number of orange trees over time.
+
+```{r}
+head(Orange) 
+```
+
+Having a look at some data summaries:
+
+```{r}
+summary(Orange) 
+```
+
+How many trees do we have?
+How many data points do we have per tree?
+
+```{r}
+table(Orange$Tree) 
+```
+
+To calculate the _mean_, _standard deviation_ and _median_ for both age and circumference of each tree:
+
+```{r}
+by.tree <- Orange %>%
+  group_by(Tree) %>%
+  summarise(mean_age = mean(age),
+            mean_circumference = mean(circumference), 
+            sd_age = sd(age),
+            sd_circumference = sd(circumference), 
+            median_age = median(age),
+            median_circumference = median(circumference)) 
+            
+by.tree
+```
+
+## Making line plots
+
+Making plots of the data:
+
+```{r}
+plot(Orange$age, Orange$circumference, xlab="Age (days)", ylab="Circumference (mm)") 
+```
+
+Each data point is linked to one at an earlier time, _for the same tree_ - how do we represent this (hint: `lines`)?
+
+```{r}
+plot(Orange$age, Orange$circumference, xlab="Age (days)", ylab="Circumference (mm)")
+is.tree <- Orange$Tree==1 
+lines(Orange$age[is.tree], Orange$circumference[is.tree]) 
+```
+
+There is a way to automate this kind of repetitive task using a programming technique called a `for` loop.
+Try and see if you understand what the following code does:
+
+```{r}
+plot(Orange$age, Orange$circumference, xlab="Age (days)", ylab="Circumference (mm)")
+for (tree in unique(Orange$Tree)) { 
+    is.tree <- Orange$Tree==tree 
+    lines(Orange$age[is.tree], Orange$circumference[is.tree]) 
+} 
+```
+
+__Advanced:__ Flexing R's graphical muscle:
+
+```{r}
+tree.numbers <- as.character(Orange$Tree)
+unique.trees <- unique(tree.numbers)
+all.colors <- rainbow(length(unique.trees))
+names(all.colors) <- unique.trees 
+plot(Orange$age, Orange$circumference, xlab="Age (days)", ylab="Circumference (mm)", 
+    col=all.colors[tree.numbers], pch=16)
+for (tree in unique.trees) {
+    is.tree <- Orange$Tree==tree 
+    lines(Orange$age[is.tree], Orange$circumference[is.tree], col=all.colors[tree], lwd=2)
+} 
+legend("topleft", col=all.colors, pch=16, lwd=2, legend=paste("Tree", unique.trees))
+```
+
+__WARNING!__ Be careful of the ordering of x-coordinates when using `lines`!
+How do we fix the following code?
+
+```{r}
+x <- runif(50)
+y <- (x-0.5)^2
+plot(x, y)
+lines(x, y)
+
+# Need to order observations by increasing 'x'
+plot(x, y) 
+o <- order(x) 
+print(x)
+print(x[o])
+lines(x[o], y[o]) 
+```
+
+# Further on the power of R graphics
+
+A lot of graphical fine-tuning can be performed using the `par` command.
+Looking at `?par` reveals a **LOT** of widely applicable graphical parameters that are not listed in the documentation of individual plotting functions.
+
+* `mfrow`, to make multi-panel plots (advanced users may prefer `layout`)
+* `mar`, to modify the margins of the plot
+* `cex.axis` and `cex.label`, to change the font size of axis labels
+
+An alternative to Rstudio's export is to save R plots directly to file with various graphics devices.
+For example, to save to PDF:
+
+```{r}
+pdf("my_plot.pdf")
+plot(cars$speed, cars$dist)
+dev.off()
+```
+
+PDFs are preferable for viewing plots in high resolution, but you can also save to PNG (e.g., if there are too many data points to store in a PDF).
+Some tinkering is required to save in a decent resolution, though:
+
+```{r, fig.keep='none'}
+png("my_plot.png", width=2000, height=2000, res=300, pointsize=15)
+plot(cars$speed, cars$dist)
+dev.off()
+```
+
+# Session information
+
+It's always wise to store your session information, so you know what version of R (and its packages) you ran it on.
+
+```{r}
+sessionInfo() 
+```
+
