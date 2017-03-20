@@ -1,12 +1,16 @@
-Basic statistics and data handling
+Data organization and introduction to R
 ========================================================
-author: Hugo Tavares (hugo.tavares@slcu.cam.ac.uk)
 date: 3 Apr 2017
 autosize: true
 width: 1500
 height: 900
 
-Day 1 - Data organization and introduction to R
+Instructors: 
+
+* Hugo Tavares (hugo.tavares@slcu.cam.ac.uk)
+* Sandra Cortijo (sandra.cortijo@slcu.cam.ac.uk)
+* Aaron Lun (Aaron.Lun@cruk.cam.ac.uk)
+* Catalina Vallejos (cvallejos@turing.ac.uk)
 
 
 Outline of Day 1
