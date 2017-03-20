@@ -37,7 +37,7 @@ server <- function(input, output) {
     output$plot1 <- renderPlot({
         collected <- collectData()
         plot(0, 0, type="n", xlab=expression("Observed temperature ("*degree*"C)"), ylab="Density", yaxs="i", 
-             ylim=c(0, 0.85), xlim=c(35, 39))
+             ylim=c(0, 0.85), xlim=c(35, 39), main="Click on the dots!")
         plot.x <- seq(34.5, 39.5, length.out=100)
         plot.y <- dnorm(plot.x, mean=normal.temp, sd=normal.sd)
         plot.x <- c(plot.x[1], plot.x, plot.x[100])

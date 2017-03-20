@@ -13,7 +13,7 @@ pageWithSidebar(
                              selectInput("hypothesis", "Type of test", choices=all.tests),
                              uiOutput("hypothesis_text"), br(),
                              selectInput("chosen", "Simulate under:", choices=all.hyp),
-                             sliderInput("number", "Number of measurements:", min=50, max=200, value=100, step=10),
+                             sliderInput("number", "Number of measurements:", min=10, max=200, value=100, step=10),
                              actionButton("resample", "Repeat experiment")
                              ),
                 mainPanel(
