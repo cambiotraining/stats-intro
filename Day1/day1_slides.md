@@ -1,12 +1,12 @@
-Data Organisation and Introduction to R
+Basic statistics and data handling
 ========================================================
 author: Hugo Tavares (hugo.tavares@slcu.cam.ac.uk)
-date: 6 Mar 2017
+date: 3 Apr 2017
 autosize: true
 width: 1500
 height: 900
 
-Introduction to Statistics course
+Day 1 - Data organization and introduction to R
 
 
 Outline of Day 1
@@ -17,8 +17,6 @@ Outline of Day 1
 * Session 2 - Introduction to R and Rstudio
 
 * Session 3 - Data manipulation in R
-
-* Session 4 - Data visualisation in R (short intro - more on Day 2)
 
 This material is adapted from the materials developed by the 
 [Data Carpentry](http://www.datacarpentry.org/) community. 
@@ -260,6 +258,44 @@ summary(fctr_vector)
 ```
 
 
+Introduction to R - factor variables
+========================================================
+
+You cannot add values that are not listed in the levels of a factor:
+
+
+```r
+char_vector[1] <- "very low"
+char_vector
+```
+
+```
+[1] "very low" "medium"   "high"     "high"     "low"      "low"     
+```
+
+```r
+fctr_vector[1] <- "very low"
+fctr_vector
+```
+
+```
+[1] <NA>   medium high   high   low    low   
+Levels: high low medium
+```
+
+And you can have levels with no observations:
+
+
+```r
+fctr_vector <- fctr_vector[fctr_vector != "medium"]
+summary(fctr_vector)
+```
+
+```
+  high    low medium   NA's 
+     2      2      0      1 
+```
+
 
 Introduction to R - factor variables
 ========================================================
@@ -277,7 +313,6 @@ levels(fctr_vector)
 ```
 
 
-
 Introduction to R - factor variables
 ========================================================
 
@@ -289,7 +324,7 @@ char_vector
 ```
 
 ```
-[1] "low"    "medium" "high"   "high"   "low"    "low"   
+[1] "very low" "medium"   "high"     "high"     "low"      "low"     
 ```
 
 ```r
@@ -297,7 +332,7 @@ as.numeric(fctr_vector)
 ```
 
 ```
-[1] 1 2 3 3 1 1
+[1] NA  2  3  3  1  1
 ```
 
 So be careful when converting factors that look like numbers! 
@@ -346,6 +381,9 @@ Data manipulation in R
 This session is adapted from 
 [this lesson](http://www.datacarpentry.org/R-ecology-lesson/03-dplyr.html) 
 of the Data Carpentry materials. 
+
+
+
 
 
 Data manipulation in R - reading tabular data
@@ -404,14 +442,280 @@ Data manipulation in R - reading tabular data
 
 To read a `CSV` file into R, we use the function `read.csv()`. 
 
-Inside the brackets you need to put the path to the file you want to read inside 
-quotes:
+Inside the parentises you need to put the path to the file you want to read within 
+quotes. 
 
 * Read the file called "surveys_data_short.csv" located in the "data" folder.
+* Assign the result to an object called `surveys`. *Hint:* like we did with vectors 
+using `<-`.
+* What kind of object is it? *Hint:* use the function `class()`.
+
+
+Data manipulation in R - reading tabular data
+========================================================
+
+Tabular objects in R are tipically stored in **data.frame** objects.
+
+After reading data into R it's always good to check the data. Several functions 
+can help with this:
+
+
+```r
+# Read the data
+surveys <- read.csv("data/surveys_data_short.csv")
+
+nrow(surveys)     # number of rows
+ncol(surveys)     # number of columns
+str(surveys)      # structure of the object
+head(surveys)     # the first few rows of data
+summary(surveys)  # summary statistics for every variable
+```
+
+
+
+Data manipulation in R - reading tabular data
+========================================================
+
+**Exercise**
+
+By default, `read.csv()` converts all character variables to factors. 
+
+By looking at the help of `read.csv` see if you can find which option to use to 
+change this behaviour.
 
 
 
 
 
+Data manipulation in R - subsetting data frames
+========================================================
+
+As with vectors, use `[]` to subset a data.frame. However, because there are 
+two dimensions in this object (rows and columns) we need to specify two indexes:
+
+```
+[rows, columns]
+```
+
+For example:
+
+
+```r
+surveys[1, 1]  # first row, first column
+surveys[, 1]   # all rows, first column
+surveys[1:4, ]   # first four rows, all columns
+```
+
+**Exercise**
+
+* Return the first six rows and all columns except the first
+
+
+Data manipulation in R - subsetting data frames
+========================================================
+
+Columns from a data.frame can be retrieved by name:
+
+
+```r
+surveys[, "species"]
+surveys$species
+```
+
+The result from these are vectors, and can be subset just like we did before:
+
+
+```r
+surveys$species[1:6]  # first six values in the species column
+```
+
+```
+[1] "albigula" "albigula" "albigula" "albigula" "albigula" "albigula"
+```
+
+
+Data manipulation in R - subsetting data frames
+========================================================
+
+Like with vectors, we can use conditions to subset our data.frame.
+
+For example, here's all the rows for one of the species:
+
+
+```r
+surveys[surveys$species_id == "RO", ]
+```
+
+```
+      year species_id sex hindfoot_length weight           genus  species
+1936  2002         RO   F              15     12 Reithrodontomys montanus
+17671 2002         RO   M              15      9 Reithrodontomys montanus
+23328 2002         RO   M              15     10 Reithrodontomys montanus
+26392 2002         RO   M              17      8 Reithrodontomys montanus
+31521 1991         RO   F              14     11 Reithrodontomys montanus
+31522 2002         RO   F              16      8 Reithrodontomys montanus
+32387 2002         RO   M              17     11 Reithrodontomys montanus
+32388 2002         RO   F              14     13 Reithrodontomys montanus
+        taxa                plot_type
+1936  Rodent                  Control
+17671 Rodent         Rodent Exclosure
+23328 Rodent Long-term Krat Exclosure
+26392 Rodent        Spectab exclosure
+31521 Rodent         Rodent Exclosure
+31522 Rodent         Rodent Exclosure
+32387 Rodent         Rodent Exclosure
+32388 Rodent         Rodent Exclosure
+```
+
+
+Tea break and a stretch
+========================================================
+
+Or:
+
+* What is the mean weight across all species?
+* Subset rows without missing values for weight. *Hint:* use the `is.na()` function.
+
+
+Data manipulation in R - advanced manipulations with dplyr
+========================================================
+
+`dplyr` is an R package (an extension that adds new functionality to R).
+
+It has several functions to manipulate data.frame objects, which combined can be 
+very effective and powerful to summarise data.
+
+To install a new package, you would do:
+
+
+```r
+install.packages("dplyr")
+```
+
+To load the package, do:
+
+
+```r
+library(dplyr)
+```
+
+
+
+Data manipulation in R - advanced manipulations with dplyr
+========================================================
+We can think of dplyr functions as verbs. We will talk about the following:
+
+* `select` - select specific columns
+* `filter` - to filter rows
+* `mutate` - to modify existing columns or create new ones
+* `group_by` - to partition the data.frame into groups
+* `summarise` - to apply functions to groups
+* `tally` - to count observations in each group
+
+`dplyr` commands can be chained, using a special "pipe" function `%>%`
+
+[Here is a cheatsheet](http://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) 
+that can be helpful for you in the future.
+
+
+Data manipulation in R - advanced manipulations with dplyr
+========================================================
+
+**Exercise**
+
+Using pipes, subset the survey data to include individuals collected before 
+1995 and retain only the columns year, sex, and weight.
+
+
+Data manipulation in R - advanced manipulations with dplyr
+========================================================
+
+**Exercise**
+
+Create a new data frame from the survey data that meets the following criteria: 
+
+* contains only the species_id column and a new column called hindfoot_half
+* hindfoot_half will contain values that are half the hindfoot_length values
+* In this hindfoot_half column, there are no NAs and all values are less than 30
+
+
+Data manipulation in R - advanced manipulations with dplyr
+========================================================
+
+**Exercise**
+
+* How many individuals were caught in each plot_type surveyed?
+
+* Use group_by() and summarize() to find the mean, min, and max hindfoot length 
+for each species (using species_id).
+
+More advanced:
+
+* What was the heaviest animal measured in each year? Return the columns year, 
+genus, species_id, and weight.
+
+* You saw above how to count the number of individuals of each sex using a 
+combination of group_by() and tally(). How could you get the same result using 
+group_by() and summarize()? Hint: see ?n.
+
+
+Data manipulation in R - Exporting data
+========================================================
+
+Let's say that we were to remove all the missing data from our data and then 
+wanted to save this cleaned version of it into a file (to share or later read 
+into R).
+
+
+```r
+# Remove missing values from the data
+surveys_clean <- surveys %>% 
+  filter(!is.na(hindfoot_length) & !is.na(weight))
+```
+
+In the same way that there is a `read.csv` function, there is also a `write.csv` 
+one. This is how it works:
+
+
+```r
+write.csv(surveys_clean, file = "data/surveys_clean.csv",
+          row.names=FALSE)
+```
+
+* Try opening this file in a spreadsheet!
+
+
+Summary of basic R
+========================================================
+
+Data types:
+
+
+```r
+# Vectors
+x <- c(135, NA, 122, NA, 168, 166)  # a numeric vector with missing values
+char_vector <- c("low", "medium", "high", "high", "low", "low")  # a character vector
+fctr_vecor <- factor(char_vector, levels = c("low", "medium", "high"))  # a factor
+
+# data.frame (tables)
+y <- read.csv("data/surveys_data_short.csv")  # reading data from a file
+```
+
+Subsetting:
+
+
+```r
+x[c(1, 3)]  # first and third elements of x
+y[c(1, 3), ]  # first and third rows of y
+y[, c(1, 3)]  # first and third columns of y
+```
+
+Logical operators:
+
+* `==` is equal to
+* `!=` is different from
+* `%in%` is contained in
+* `>` is greater than
+* `>=` is greater than or equal to
 
 
