@@ -155,6 +155,22 @@ x <- c(135, 174, 122, 185, 168, 166)
 * Extract every second value. *Challenge*: can you do it using `seq()`?
 
 
+Introduction to R - logical operators
+========================================================
+
+Relational operators:
+
+* `==` is equal to
+* `!=` is different from
+* `%in%` is contained in
+* `>` is greater than
+* `>=` is greater than or equal to
+
+Logical operators:
+* `&` AND
+* `|` OR
+
+
 Introduction to R - missing values
 ========================================================
 
@@ -335,6 +351,10 @@ as.numeric(fctr_vector)
 [1] NA  2  3  3  1  1
 ```
 
+
+Introduction to R - factor variables
+========================================================
+
 So be careful when converting factors that look like numbers! 
 
 
@@ -404,6 +424,10 @@ directory/subdirectory/another_subdirectory/some_file.txt
 * Each directory is split by a `/` 
 * The file name comes at the end (don't forget to include the file extension)
 * Spaces should be avoided, but in R they are tolerated
+
+
+Data manipulation in R - reading tabular data
+========================================================
 
 But what is the starting point of this *path*? 
 
@@ -685,20 +709,25 @@ write.csv(surveys_clean, file = "data/surveys_clean.csv",
 * Try opening this file in a spreadsheet!
 
 
-Summary of basic R
+Key points to remember
 ========================================================
 
 Data types:
 
 
 ```r
-# Vectors
-x <- c(135, NA, 122, NA, 168, 166)  # a numeric vector with missing values
-char_vector <- c("low", "medium", "high", "high", "low", "low")  # a character vector
-fctr_vecor <- factor(char_vector, levels = c("low", "medium", "high"))  # a factor
+# Numeric vectors
+x <- c(135, NA, 122, NA, 168, 166)
 
-# data.frame (tables)
-y <- read.csv("data/surveys_data_short.csv")  # reading data from a file
+# Character vector
+char_vector <- c("low", "medium", "high", "high", "low", "low")
+
+# Factor
+fctr_vecor <- factor(c("low", "medium", "high", "high", "low", "low"), 
+                     levels = c("low", "medium", "high"))
+
+# Reading a data.frame (table) from a file
+y <- read.csv("data/surveys_data_short.csv")
 ```
 
 Subsetting:
@@ -709,13 +738,4 @@ x[c(1, 3)]  # first and third elements of x
 y[c(1, 3), ]  # first and third rows of y
 y[, c(1, 3)]  # first and third columns of y
 ```
-
-Logical operators:
-
-* `==` is equal to
-* `!=` is different from
-* `%in%` is contained in
-* `>` is greater than
-* `>=` is greater than or equal to
-
 
