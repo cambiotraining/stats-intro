@@ -17,15 +17,15 @@ knitr::opts_chunk$set(error=FALSE)
 
 This practical will walk you through the set-up of linear models.
 These are very flexible models that can accommodate a range of experimental designs.
-Each observation is described as a linear sum of predictive variables plus a normally-distributed error term:
+Their simplest form may be recognizable as a simple linear regression:
 
 ```
-Y_i = B_0 + B_1 * X_i1 + B_2 * X_i2 + ... + B_n * X_in + e_i
+Y_i = B_0 + B_1 * X_i1 + e_i
 ```
 
 Here, `Y_i` is the observation for sample _i_;
-`X_ij` is the value of predictor _j_ for sample _i_;
-`B_j` is the coefficient for predictor _j_ (`B_0` is a special case, known as the "intercept", where all `X_i0 = 1`);
+`X_i1` is the value of predictor _1_ for sample _i_;
+`B_1` is the coefficient for predictor _1_ (`B_0` is a special case, known as the "intercept", where all `X_i0 = 1`);
 and `e_i` is the error term.
 
 Linear modelling assumes that the error (i.e., difference between each observation and its mean) is:
@@ -33,7 +33,7 @@ Linear modelling assumes that the error (i.e., difference between each observati
 - random and independent across observations 
 - normally distributed, with mean zero and a constant standard deviation. 
 
-It also assumes that the model was correctly specified, i.e., the right predictors were used. 
+It also assumes that the model was correctly specified, i.e., the correct predictors were used. 
 
 ## Demonstrating with linear regression on plant heights
 
@@ -64,7 +64,7 @@ Height_i = B_0 + B_1 * Age_i + e_i
 
 `B_0` is the intercept, corresponding to a predictor `X_i0` with a value of 1 for all _i_.
 The `Age_i` term is the other predictor, and has value of 2 for plant A, 4 for plant B, etc.
-`B_2` is the coefficient for the `Age_i` predictor, representing the gradient/slope of the line.
+`B_1` is the coefficient for the `Age_i` predictor, representing the gradient/slope of the line.
 `e_i` is the error term that is i.i.d. normal for all _i_. 
 
 Here, `Age_i` is a continuous "covariate".
@@ -216,6 +216,11 @@ This allows me to calculate the average (i.e., "fitted value") for each group of
 - for the drug A and Z-treated individuals, the average is `B_0 + B_X + B_Z = 75`
 
 In short, the relationship between the independent variable (weight) and my dependent variables (drug treatment) is a linear sum of the coefficients.
+
+__Advanced:__ We have assumed that the combined effect of drugs A and Z are _additive_.
+To account for non-additive effects (e.g., synergy, epistasis), we need an "interaction" term, i.e., do drugs A and Z interact in their effects?
+All individuals treated with both drugs get an extra `B_AZ` term in their linear equations.
+However, in the rest of this session, we will restrict ourselves to additive models for simplicity.
 
 # Setting up a linear model with factors
 
@@ -403,7 +408,7 @@ t.test(scores[status=="H"], scores[status=="D"], paired=TRUE) ## ANSWER ##
 
 ## Using a blocking factor
 
-What happens if each patient has multiple diseases?
+What happens if each patient has multiple disease states?
 
 ```{r}
 scores  <- c(2.31, 0.73, 2.50, 2.90, 4.57, 4.68, 4.81, 5.37, 7.80)
@@ -682,7 +687,7 @@ fit3 <- lm(seedsize3 ~ genotype)
 plot(fitted(fit3), residuals(fit3), xlab="Fitted values", ylab="Residuals") 
 ```
 
-Heteroskedasticity often occurs in real positive data because the range of variability across large values is larger than that across small values.
+Heteroskedasticity often occurs in positive data because the range of variability across large values is larger than that across small values.
 To fix this, we need to "stabilize" the variance using some transformations.
 Again, the log-transformation is a good place to start.
 
