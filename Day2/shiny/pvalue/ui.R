@@ -1,5 +1,4 @@
-## This app demonstrates the stochasticity of the p-value.
-## (UI-side code)
+
 ## written by Aaron Lun
 ## 12 November 2016
 
@@ -8,13 +7,13 @@ source("reference.R")
 plot.width <- 6
 plot.height <- 400
 pageWithSidebar(
-                headerPanel("Stochasticity of the p-value", "Body temperature simulation"),
+                headerPanel("Measuring people's body temperatures", "Body temperature simulation"),
                 sidebarPanel(
                              selectInput("hypothesis", "Type of test", choices=all.tests),
                              uiOutput("hypothesis_text"), br(),
                              selectInput("chosen", "Simulate under:", choices=all.hyp),
-                             sliderInput("number", "Number of measurements:", min=10, max=200, value=100, step=10),
-                             actionButton("resample", "Repeat experiment")
+                             sliderInput("number", "Number of people:", min=10, max=200, value=100, step=10),
+                             actionButton("resample", "Measure new people!")
                              ),
                 mainPanel(
                           fluidRow(

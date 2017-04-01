@@ -75,7 +75,7 @@ which(adj.pvals <= 0.05) ## ANSWER ##
 ```
 
 In practice, a better approach is to use the Holm correction.
-This is slightly less conservative than the Bonferroni correction, while still controlling the FWER.
+This is slightly less conservative than the Bonferroni correction, while still controlling the FWER in all settings.
 
 ```{r}
 adj.pvals <- p.adjust(all.pvals, method="holm")
@@ -110,16 +110,16 @@ Rather, we choose to control the false discovery rate (FDR).
 This is the proportion of significant tests that are false positives, i.e., incorrectly rejected true null hypotheses.
 
 We compute FDR-adjusted _p_-values (also known as _q_-values) using the Benjamini-Hochberg method. 
-If I reject all tests with _q_-values below 0.05, the FDR across this set of rejected tests will be controlled (on average) at or below 5%.
+If I reject all tests with _q_-values below 0.1, the FDR across this set of rejected tests will be controlled (on average) at or below 10%.
 
 ```{r}
 qvals <- p.adjust(all.pvals, method="BH")
 # Put some code here!
-sum(qvals <= 0.05) ## ANSWER ##
-which(qvals <= 0.05) ## ANSWER ##
+sum(qvals <= 0.1) ## ANSWER ##
+which(qvals <= 0.1) ## ANSWER ##
 ```
 
-__Note:__ This will detect more than controlling the FWER, but at the cost of more errors.
+__Note:__ This will detect more things than you would get if you tried to control the FWER, but at the cost of more errors.
 Let's say I have an analysis where I reject the null for 20 tests at a FDR of 5%.
 This means that each test has a 5% chance of being a false positive.
 The corresponding FWER would be `1-(1-0.05)^20`, i.e., there is a ~65% chance of at least one test being incorrectly rejected.

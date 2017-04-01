@@ -245,9 +245,9 @@ segments(x.pos, mean.wts, x.pos, mean.plus.se)
 segments(x.pos+0.1, mean.plus.se, x.pos-0.1, mean.plus.se)
 ```
 
-* The first "segments" draws the vertical part of the error bar. 
-* The second "segments" draws the horizontal part of the error bar. 
-* The 'ylim' argument ensures that the entirety of the error bar is visible. 
+* The first `segments` draws the vertical part of the error bar. 
+* The second `segments` draws the horizontal part of the error bar. 
+* The `ylim` argument ensures that the entirety of the error bar is visible. 
 
 # Plotting lines with the `Orange` dataset
 
