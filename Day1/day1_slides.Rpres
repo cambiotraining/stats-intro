@@ -12,6 +12,8 @@ Instructors:
 * Aaron Lun (Aaron.Lun@cruk.cam.ac.uk)
 * Catalina Vallejos (cvallejos@turing.ac.uk)
 
+Course materials: https://github.com/cambiotraining/stats-intro
+
 
 Outline of Day 1
 ========================================================
@@ -156,7 +158,7 @@ x <- c(135, 174, 122, 185, 168, 166)
 * Extract every second value. *Challenge*: can you do it using `seq()`?
 
 
-Introduction to R - logical operators
+Introduction to R - conditional operators
 ========================================================
 
 Relational operators:
@@ -592,20 +594,20 @@ write.csv(surveys_clean, file = "data/surveys_clean.csv",
 * Try opening this file in a spreadsheet!
 
 
-Key points to remember
+Some key points to remember
 ========================================================
 
 Data types:
 
 ```{r, eval = FALSE}
-# Numeric vectors
+# Numeric vector
 x <- c(135, NA, 122, NA, 168, 166)
 
 # Character vector
 char_vector <- c("low", "medium", "high", "high", "low", "low")
 
 # Factor
-fctr_vecor <- factor(c("low", "medium", "high", "high", "low", "low"), 
+fctr_vector <- factor(c("low", "medium", "high", "high", "low", "low"), 
                      levels = c("low", "medium", "high"))
 
 # Reading a data.frame (table) from a file
