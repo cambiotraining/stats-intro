@@ -1,6 +1,6 @@
 ---
 title: Overview of linear modelling
-author: Aaron Lun and Cataline Vallejos
+author: Aaron Lun and Catalina Vallejos
 date: 5 April 2017
 output:
   html_document:
