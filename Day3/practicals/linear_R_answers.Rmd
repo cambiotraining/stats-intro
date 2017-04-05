@@ -210,7 +210,7 @@ This allows me to calculate the average (i.e., "fitted value") for each group of
 - for the drug Z-treated individuals, the average is `B_0 + B_Y = 65`
 - for the drug A and Z-treated individuals, the average is `B_0 + B_X + B_Z = 75`
 
-In short, the relationship between the independent variable (weight) and my dependent variables (drug treatment) is a linear sum of the coefficients.
+In short, the relationship between the dependent variable (weight) and my independent variables (drug treatment) is a linear sum of the coefficients.
 
 __Advanced:__ We have assumed that the combined effect of drugs A and Z are _additive_.
 To account for non-additive effects (e.g., synergy, epistasis), we need an "interaction" term, i.e., do drugs A and Z interact in their effects?
@@ -640,7 +640,7 @@ qqline(lresid2)
 
 ## Checking for heteroskedasticity
 
-Recall one of the assumptions of the linear model is that the errors are normally distribued with the same variance.
+Recall one of the assumptions of the linear model is that the errors are normally distributed with the same variance.
 This is not true when heteroskedasticity is present.
 
 > Heteroskedasticity = variablity in the variance of our dependent variable, across the range of values of our independent variables.

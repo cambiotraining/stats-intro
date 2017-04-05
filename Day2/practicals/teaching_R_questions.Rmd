@@ -130,7 +130,6 @@ Check out `?plot` and `?par` for tunable parameters.
 ```{r}
 # Put some code here!
 plot(cars$speed, cars$dist, pch=<something>, cex=<something>, col=<something>) 
-plot(cars$speed, cars$dist, pch=15, cex=2, col="red")
 ```
 
 # Exploring the `chickwts` dataset
