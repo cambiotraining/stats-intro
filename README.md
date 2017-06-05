@@ -41,8 +41,7 @@ Lecture:
 [Multiple testing correction](Day3/lectures/MultipleTesting_April2017.pdf)
 
 Practical:
-[Multiple testing correction using R](Day3/lectures/multiple_R_questions.Rmd)
-
+[Multiple testing correction using R](Day3/practicals/multiple_R_questions.Rmd)
 
 
 
