@@ -29,7 +29,7 @@ surveys <- read_csv("data/surveys_data_short.csv")
 ```
 
 
-## Variable types - numeric and character
+## Variable types
 
 As you might already suspect, our `surveys` data is composed of variables that 
 are of a different nature. Some are descriptive (like `species_id` or `genus`) 
@@ -43,6 +43,9 @@ summary(surveys)
 
 > In the output above, the summary looks different for the different variables. 
 Does this make sense considering what type of variable these might be?
+
+
+### Numeric and character variables
 
 We can learn more about the contents of _data.frame_ objects with the `glimpse()` 
 function:
