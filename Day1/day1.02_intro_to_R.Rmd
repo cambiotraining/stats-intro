@@ -1,0 +1,502 @@
+---
+title: "Introduction to R"
+date: "28 August 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# Generate modified (simplified) surveys data.frame
+if(!file.exists("data/surveys_data_short.csv")){
+  library(tidyverse)
+  tmp <- read_csv("https://ndownloader.figshare.com/files/2292169") %>% 
+    select(-c(record_id, plot_id, month, day, plot_type)) %>% 
+    filter(sex != "" & !is.na(weight) & 
+             species_id %in% c("PL", "SF", "RF", "PL", "PH", "PM", "OL", "PM", "NL", "OL")) %>% 
+    write_csv("data/surveys_data_short.csv")
+}
+```
+
+
+Throughout the course we will be using Rstudio, which is a program that provides 
+with a convenient interface to work with R. 
+
+R code can be saved into text documents, called scripts (usually with a file 
+extension `.R`). In this course we will be using a special kind of document, 
+which is also text-based but mixes code and text. These are called "Rmarkdown" 
+files (with extension `.Rmd`).
+
+We will learn about "Rmarkdown" scripts throughout the course, but there are 
+some useful "Cheatsheets" that are available from Rstudio itself under 
+"Help > Cheatsheets"
+
+These materials are inspired by these  
+[Data Carpentry materials](http://www.datacarpentry.org/R-ecology-lesson/index.html). 
+Those materials can be used to go more in-depth into several topics introduced 
+here.
+
+---------------
+
+Tipically we start our analysis from data that was collected in a tabular 
+format (for example, using Excel). 
+
+Let's say we collected some morphometric measurements from different species 
+over many years and want to summarise these data (for example calculate means) 
+by species, year, sex, etc...
+
+These data are stored in a _CSV_ file in our course materials `Day1/data` folder 
+called `surveys_data_short.csv`. Feel free to inspect that file using a spreadsheet 
+program. 
+
+Here are the first few rows of that table:
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+library(tidyverse)
+# Read table
+surveys <- read_csv("./data/surveys_data_short.csv")
+
+# print first few rows
+surveys %>% 
+  filter(complete.cases(.)) %>% 
+  head() %>% 
+  knitr::kable()
+```
+
+The whole dataset contains `r nrow(surveys)` rows of data, which is reasonably big! 
+Let's say that, by the end of today we'd like to:
+
+* visualise the correlation between hindfoot length and weight of each individual 
+using a scatterplot
+
+```{r, echo = FALSE}
+plot(surveys$weight, surveys$hindfoot_length, ylab = "Hindfoot length", xlab = "Weight")
+```
+
+* Summarise these data into a smaller table with the mean weight and hindfoot 
+length of each species and each sex to produce the following two plots:
+
+```{r, echo = FALSE}
+sum_surveys <- surveys %>% 
+  group_by(species_id, sex) %>% 
+  summarise(mean_weight = mean(weight, na.rm = TRUE),
+            mean_hind = mean(hindfoot_length, na.rm = TRUE))
+
+sum_surveys %>% filter(sex == "M") %>% 
+  with(plot(mean_weight, mean_hind, main = "Males", xlim = c(0, 200), ylim = c(15, 35)))
+sum_surveys %>% filter(sex == "M") %>% 
+  with(text(mean_weight, mean_hind, labels = species_id, pos = 4))
+
+sum_surveys %>% filter(sex == "F") %>% 
+  with(plot(mean_weight, mean_hind, main = "Females", xlim = c(0, 200), ylim = c(15, 35)))
+sum_surveys %>% filter(sex == "F") %>% 
+  with(text(mean_weight, mean_hind, labels = species_id, pos = 4))
+```
+
+
+# R basics
+
+Before we start with our analysis, let's learn some very basic concepts in R,
+including:
+
+* How to issue commands in R
+* What is a variable and how to create one
+* What are functions and how to use them
+* What is a vector and how to create one
+* What is a data.frame and how to create one from a file
+
+### Using the console
+
+R works by writting commands (instructions) in the _Console_ that are then 
+interpreted and executed by R, so that an answer is printed back to the user. 
+
+For example, we can use R as a calculator:
+
+```{r}
+# All the basic arithmetic operators in R
+3 + 2    # sum
+3 - 2    # subtraction
+3 * 2    # multiplication
+3 / 2    # division
+3 ^ 2    # exponentiation
+```
+
+### Defining variables
+
+We can also store the result of an operation in a _variable_ or _object_ - 
+basically something that we give a name to and that will contain that result for 
+later use.
+
+To store the result of some operation in a variable we use `<-`, which we can 
+think of as an arrow pointing left (note: no spaces between `<` and `-`!).
+
+```{r}
+# Store the result of this operation in a variable called "x"
+x <- 3 + 2
+```
+
+We can then re-use this variable again an again, for example:
+
+```{r}
+x + 1
+x + 2
+x * 2 + 3
+```
+
+Note that the value of `x` itself did not change:
+
+```{r}
+x
+```
+
+But we can change its value by "over-writing" it with a new value:
+
+```{r}
+x <- 6
+```
+
+Note that the previous value of `x` is lost. If we want it back we'd have to 
+run our previous commands again.
+
+> What do you think the value of `x` is after the following command?
+
+```{r, eval = FALSE}
+x <- x + 1
+```
+
+
+### Functions
+
+A lot of the functionality in R is in its functions, which allow us to perform 
+certain operations (sometimes very complicated ones) with a single command.
+
+We can recognise functions in code easily, because they always follow the pattern:
+
+`function(inputs)`
+
+that is, we have the function name, then open parenthesis, and inside the parenthesis 
+we include all the necessary inputs (arguments) that the function needs to perform 
+its operations.
+
+We will come across many functions throughout the course, but here's a few examples 
+of functions that operate on a single number:
+
+```{r}
+# Square root of 3
+sqrt(3)
+
+# Round 3.14
+round(3.14)
+```
+
+We can see that the round function rounds our number to the nearest integer (no 
+decimal points). However, we might want to round the number to one, or two, or 
+three, etc., decimal points instead. In fact, we can do this with the `round()` 
+function, because it accepts extra _arguments_ as its input:
+
+```{r}
+# Round 3.14 to the nearest digit
+round(3.14, digits = 1)
+```
+
+Arguments within functions are separated by a comma `,`. 
+
+But how would we know what that option was called? Or that it even existed? 
+
+The answer is: by looking at its documentation. 
+Every function in R has a help page, which we can look at by using `?` followed 
+by the function's name, for example `?round`.
+
+From its help page we can see that this function accepts two arguments called 
+"x" and "digits". "x" is the number we want to round, and "digits" is the 
+number of decimal points we want to round to. 
+
+> Use these examples to understand more about how functions work:
+
+```{r}
+round(x = 2.72, digits = 1)
+round(digits = 1, x = 2.72)
+round(2.72, 1)
+round(1, 2.72)
+```
+
+
+### Vectors - the most basic data type in R
+
+In the previous examples, we created variables that contained a single value. 
+But sometimes we might want to manipulate and store several values together to 
+perform certain operations on. 
+
+We can achieve this by creating what is called a _vector_, which is the 
+most fundamental data type in R. For this we use a special function in R simply 
+called `c()` (for "combine"), like so:
+
+```{r}
+y <- c(1, 3, 5, 6)
+y
+```
+
+As you see, `y` now contains four values. 
+
+> Use the following code to understand the behaviour of vectors:
+
+```{r}
+y + 1
+y + y
+y + c(1, 2)
+```
+
+
+### Subsetting vectors
+
+You can access specific values within a vector by using `[]`, like so:
+
+```{r}
+# Get the first element of y
+y[1]
+
+# Get the second element of y
+y[2]
+
+# Get the first and third elements of y
+y[c(1, 3)]
+```
+
+Can you see what we did with that last command? 
+We used a vector to subset another vector! This is an often used trick, and we 
+will learn more about it later.
+
+> Using `[]` and `c()`, can you return all the values in `y` but in reverse order?
+
+
+# Starting our analysis
+
+Now we know the very basics or R, we will learn more about it by working through 
+our species dataset. 
+
+To reach our goal we will try to do the following in R:
+
+* Read our tabular data from a file
+* Manipulate this table within R
+* Get an overview of the data
+* Summarise our data by different groups
+* Make our desired plot
+
+To this end we will use a package in R called `tidyverse`. Packages are collections 
+of functions that extend the functionality of R. The package that we're 
+going to use, for example, contains several functions that facilitate manipulating 
+tables in R.
+
+To make the functions in a package available we need to "load" it, like so:
+
+```{r}
+library(tidyverse)
+```
+
+If the package is not installed, then you can install it by using the command 
+`install.packages("package_name")` (replacing "package_name" with the name of 
+the package you want to install). This will download the package from the internet 
+and install it on your computer. 
+
+
+### Reading tabular data from a file
+
+To read files into R, we first need to learn how to tell the program where 
+our file is (without using the file browser!).
+
+This is done by specifying the **path** to that file. This is like an address of 
+where that file is located on the computer.
+
+File paths are built like so:
+
+```
+directory/subdirectory/another_subdirectory/some_file.txt
+```
+
+* Each directory is split by a `/` 
+* The file name comes at the end (don't forget to include the file extension!)
+* Spaces should be avoided, but in R they are tolerated
+
+But what is the starting point of this *path*? 
+
+This varies between operating system, but generally a good way to start is to look 
+at the **working directory** that R is using. This is the *path* that R is taking 
+as a reference point while you are working. Try:
+
+```{r, eval = FALSE}
+getwd()
+```
+
+In this case, we see that R is using as its reference path the directory where 
+this file is stored in. 
+
+If you're not working with a "Rmarkdown" file, then it's a good idea to set 
+a working directory that corresponds to your project folder. We do this with the 
+`setwd()` function, for example:
+
+```{r, eval = FALSE}
+setwd("~/Desktop/course_materials/Day1")
+```
+
+* The `~` means "home directory", which is a specific directory that corresponds 
+to your user account on the computer (again, this varies between operating system).
+
+> To read a `CSV` file into R, we will use the function `read_csv()`. 
+>
+> Inside the parentises you need to put the path to the file you want to read within 
+quotes. 
+>
+>* Read the file called "surveys_data_short.csv" located in the "data" folder.
+>* Assign the result to an object called `surveys`. 
+>* What kind of object is it? *Hint:* use the function `class()`.
+
+```{r, eval = FALSE}
+# Complete this code:
+surveys <- read_csv("<here>")
+class(<here>)
+```
+
+_Note:_ there is another function called `read.csv()`, which is the usual 
+default function to read CSV files. It is very similar to `read_csv()`, but 
+with a few differences: it is faster at reading files (relevant for big 
+datasets); it returns a "tibble" object, which is an "enhanced" form of a 
+data.frame; strings are not converted to factors by default. The meaning of this 
+will become clearer as we move through the course.
+
+
+### The data.frame object
+
+Tabular objects in R are tipically stored in **data.frame** objects. In our case,
+the object is also a "tibble" object, which is a special type of "data.frame" that, 
+for all practical purposes in this lesson, is equivalent. 
+
+After reading data into R it's always good to check the data. Several functions 
+can help with this:
+
+```{r}
+nrow(surveys)     # number of rows
+ncol(surveys)     # number of columns
+head(surveys)     # the first few rows of data
+```
+
+We've learned how to subset vectors in R by using `[]`. We can subset data.frames
+in the same way, except that now we need to define two dimensions: rows and columns. 
+
+With a data.frame we use the syntax: `[row, column]`. 
+For example, if I wanted the first 3 rows and the first 2 columns of my table, 
+I could do:
+
+```{r}
+surveys[c(1, 2, 3), c(1, 2)]
+```
+
+If I wanted the first 3 rows and _all_ columns, I would put nothing on the right 
+of the comma:
+
+```{r}
+surveys[c(1, 2, 3), ]
+```
+
+And vice-versa for rows (let's not run this command, because there's `r nrow(surveys)`, 
+rows in our table!):
+
+```{r, eval = FALSE}
+surveys[, c(1, 2)]
+```
+
+
+**Tip**
+
+Let's say I wanted rows 11 to 30 of my table. How could I do this? 
+With what we've learned so far, this would be the solution:
+
+```{r}
+surveys[c(11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30), ]
+```
+
+But that's a lot of typing!! 
+In fact, creating a sequence of whole numbers incrementing by 1 is such a common 
+thing, that there is a compact way to do it:
+
+```{r}
+1:10 # sequence from 1 to 10
+10:1 # sequence from 10 to 1
+```
+
+> Having this information, create a new data.frame object called 
+`surveys_subset` containing rows 181 to 200 from the original table.
+
+```{r}
+# put your code here!
+
+```
+
+
+It's also possible to create more complex sequences of numbers, using a function 
+called `seq()`:
+
+```{r}
+seq(from = 1, to = 10, by = 2)  # sequence of numbers from 1 to 10 incrementing by 2
+seq(10, 1, -2)                  # sequence of numbers from 10 to 1 decreasing by 2
+```
+
+
+### Accessing variables in data.frames
+
+Because columns in our data.frames are named variables (the things we measured),
+it is convenient to access them by name, rather than by position using `[]`. 
+
+Individual columns can be accessed using the `$` operator, like so:
+
+```{r, eval = FALSE}
+surveys$weight
+```
+
+> What kind of object do you think is returned?
+
+The variables (columns) in a data.frame are in fact vectors, which we've already 
+learned to manipulate! 
+
+So, for example, if I wanted the first 20 values of weight I could do:
+
+```{r}
+surveys$weight[1:20]
+```
+
+We can also select several variables using the function `select()`, from the `dplyr` 
+package (part of `tidyverse`):
+
+```{r, eval = FALSE}
+select(surveys, species_id, weight)
+```
+
+> What kind of object do you think is returned in this case?
+
+
+### A simple plot
+
+We are finally ready to produce our desired scatterplot. We will learn more about 
+plotting on Day 2 of the course, but for now we will use the `plot()` function, 
+which needs at least two arguments: the values for the x-axis and the values for 
+the y-axis:
+
+```{r}
+plot(surveys$weight, surveys$hindfoot_length)
+```
+
+
+
+# Some key points to remember
+
+* Vectors are the most fundamental data type in R. They have one dimension only.
+    + Subset vectors using `[]`
+* data.frames are the default tabular object in R. Thave have two dimensions 
+(observations in rows and variables in columns).
+    + Read them into R using the `read_*` family of functions
+    + Subset data.frames using `[row, column]`
+    + Access individual columns using `$` (the result is a vector)
+    + Access several columns using `select()` (the result is a data.frame)
+
+

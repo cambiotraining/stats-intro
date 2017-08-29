@@ -1,0 +1,404 @@
+---
+title: "Variables and conditionals"
+date: "29 August 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+In this lesson we're going to learn more about different types of variables, which 
+is very important in order to manipulate and query our tables (data.frame objects). 
+
+We're going to learn:
+
+* What types of variables there are in R (numeric, character, logical, factor)
+* What are missing values and how to deal with them
+* How to subset data based on conditions
+* How to apply this knowledge to subset data.frame objects
+
+We will continue using the `surveys` dataset and the `tidyverse` package:
+
+```{r, message=FALSE}
+# Load the package
+library(tidyverse)
+
+# Read the data
+surveys <- read_csv("data/surveys_data_short.csv")
+```
+
+
+## Variable types
+
+As you might already suspect, our `surveys` data is composed of variables that 
+are of a different nature. Some are descriptive (like `species_id` or `genus`) 
+whereas others are of a numerical nature (such as `weight` and `height`).
+
+A very useful function to get a quick summary of our data is called `summary()`:
+
+```{r}
+summary(surveys)
+```
+
+> In the output above, the summary looks different for the different variables. 
+Does this make sense considering what type of variable these might be?
+
+
+### Numeric and character variables
+
+We can learn more about the contents of _data.frame_ objects with the `glimpse()` 
+function:
+
+```{r}
+glimpse(surveys)
+```
+
+From the output above we see that our variables are of different "types", some are 
+marked as `int` and others as `chr`. These stand, respectively, for "integer" and 
+"character" and refer to the fact that these two are different types of data. 
+
+Let's see some examples of different types of vector:
+
+```{r}
+# Numeric vector (integer)
+x <- 1:4
+
+# Numeric vector (with decimal points)
+y <- c(0.1, 0.2, 3)
+
+# Character vector
+z <- c("cat", "dog", "horse")
+
+class(x)
+class(y)
+class(z)
+```
+
+For all practical purposes, "integer" and "numeric" vectors are identical. They 
+are both numeric in nature and can be used in arithmetic operations. Characters, 
+however cannot:
+
+```{r, error = TRUE}
+mean(x)
+mean(y)
+mean(z) # does not work
+x + y
+x + z # does not work
+```
+
+
+## Missing values
+
+In the `summary()` output we obtained above, we can see there is a count of `NA` 
+values for `hindfoot_length`. 
+
+```{r}
+# First 10 values of hindfoot_length
+surveys$hindfoot_length[1:20]
+```
+
+These represent "missing data", which R handles in a special way. 
+
+Let's see some examples:
+
+```{r}
+# Create a vector of numbers including some NA values
+x <- c(2, 3, 1, 1, NA, 10, 20)
+
+mean(x)
+sd(x)
+```
+
+If we run the functions `mean()` and `sd()` on that vector, we get back `NA`! 
+This is because the default behaviour of those functions is to not proceed with 
+their computation if there are any missing values in the data. If we do want them 
+to calculate the mean, excluding the missing values, we have to say so explicitly:
+
+```{r}
+mean(x, na.rm = TRUE)
+sd(x, na.rm = TRUE)
+```
+
+We could know about this option by looking at the help `?mean` and `?sd`.
+
+> Calculate the mean and standard deviation of weights and hindfoot lenghts
+
+```{r}
+# put your code here!
+```
+
+
+## Conditionals
+
+Let's say we wanted to know how many of our sampled individuals weight more than 
+200g. To answer this question we need to learn about how to query our data based 
+on some condition (in this case that the values of weight are greater than 100). 
+
+To this end we need to learn about another type of variable: logical.
+
+### Logical variables
+
+There is another important variable type called a "logical". This is a type of 
+variable that stores the values `TRUE` and `FALSE`. 
+
+These variables are extremely useful, because we can use them to subset other 
+vectors. See this example:
+
+```{r}
+# Note they are all uppercase with no quotes
+logical_vector <- c(TRUE, FALSE, FALSE, TRUE)
+
+x
+x[logical_vector]
+```
+
+Using a logical vector within `[]` returns only the values that are `TRUE`. In 
+the above example this was not very useful, because we specified the logical values 
+"by hand", but consider this other case:
+
+```{r}
+# Create a vector
+x <- c(10, 0.2, 20, -10, 5)
+# Create a logical vector where values in x are above 2
+above2 <- x > 2
+
+# Original vector
+x
+# Condition
+above2
+# A subset the original vector
+x[above2]
+```
+
+In this case, the logical vector was constructed using a condition stipulated by 
+us and based on the data itself. 
+
+We could easily find out how many of those cases fulfill our condition by using the 
+`sum()` function, which for logical vectors will sum the cases containing the 
+value `TRUE` (you can think of it as `TRUE = 1` and `FALSE = 0`):
+
+```{r}
+sum(above2)
+```
+
+> Based on this, we can now answer our question of how many individuals weight 
+more than 200g? Hint: first create a logical vector called `weight200` that will 
+contain values "TRUE" and "FALSE". Then use that vector to subset the `weight` 
+column of the table using `[]`.
+
+```{r}
+# Put your code here!
+```
+
+
+### Conditional operators
+
+In the example above, we managed to subset a vector based on a condition stipulated 
+by us. There are many "operators" to perform this, listed below.
+
+Relational operators:
+
+* `==` is equal to
+* `!=` is different from
+* `%in%` is contained in
+* `>` is greater than
+* `>=` is greater than or equal to
+
+Logical operators:
+* `&` AND
+* `|` OR
+
+Combined, these can be used to perform very complex and customised operations. 
+
+For example, here is how we could obtain the weights for the "PH" species in our 
+`surveys` table that have a hindfoot length greater than 25:
+
+```{r}
+# Make a logical operator for which the species ID is equal to "PH"
+ph_hindfoot25 <- surveys$species_id == "PH" & surveys$hindfoot_length > 25
+
+# Subset the weights based on that condition
+surveys$weight[ph_hindfoot25]
+```
+
+Or a condition that evaluates cases where the hindfoot length is either above 
+40mm or below or equal to 10mm:
+
+```{r, eval = FALSE}
+surveys$hindfoot_length <= 10 | surveys$hindfoot_length > 40
+```
+
+
+### Dealing with NA values
+
+There are some functions that also return logical vectors. One of the most 
+useful ones is called `is.na()`, which evaluates if the values in a vector are 
+missing or not:
+
+```{r}
+x <- c(1, 2, NA, 5, 10)
+
+# Return true if the value is missing
+is.na(x)
+```
+
+We can "negate" a logical vector by using `!`:
+
+```{r}
+# Return true if the value is NOT missing
+!is.na(x)
+```
+
+This can be very handy. For example, if we wanted individuals with hindfoot 
+length above 35mm, we obtain many `NA` values:
+
+```{r}
+surveys$hindfoot_length[surveys$hindfoot_length > 35]
+```
+
+We can use the `is.na()` function to solve this problem, like so:
+
+```{r}
+surveys$hindfoot_length[surveys$hindfoot_length > 35 & !is.na(surveys$hindfoot_length)]
+```
+
+We combine the two conditions into one:
+
+* hindfoot lengths above (`>`) 35mm
+
+AND
+
+* values of hindfoot length that are NOT missing (`!is.na`)
+
+> How many values of weight are there for the species "DM" with hindfoot length 
+above 40mm?
+> How many values of hindfoot length are either above 40mm or below 10mm?
+
+```{r}
+# put your code here!
+```
+
+
+## Checking data variables
+
+Knowing what kind of variables our data is composed of and whether or not 
+there are any missing values is a **very important** step in data analysis!
+
+There are two very convenient functions called `vis_dat()` and `vis_miss()` in 
+the package `visdat` that can be used to get a graphical representation of 
+data in a table. They are particularly useful for big datasets like this one:
+
+```{r}
+library(visdat)
+vis_dat(surveys)
+vis_miss(surveys)
+```
+
+Learn more about these functions from the 
+[package's website](https://cran.r-project.org/web/packages/visdat/vignettes/using_visdat.html)
+
+
+## factor variables
+
+So far, we've seen **numeric**, **character** and **logical** vectors. 
+
+There is another type of vector, which is used to represent categorical data and 
+is called **factor**.
+
+We will learn later in the course how factors are important for statistical 
+analysis. For now, consider these two vectors:
+
+```{r}
+char_vector <- c("low", "medium", "high", "high", "low", "low")
+fctr_vector <- factor(char_vector)
+```
+
+> How are they different?
+
+```{r}
+char_vector
+fctr_vector
+```
+
+While both contain the same values, factors have a new attribute called **levels** - 
+the unique values that occur in the vector:
+
+```{r}
+levels(fctr_vector) # the levels in the factor
+nlevels(fctr_vector) # the number of levels
+```
+
+Many R functions treat factors differently from character vectors. For example,
+the `summary()` function that we've already used:
+
+```{r}
+summary(char_vector)
+summary(fctr_vector)
+```
+
+You cannot add values that are not listed in the levels of a factor:
+
+```{r}
+char_vector[1] <- "very low"
+char_vector
+
+fctr_vector[1] <- "very low"
+fctr_vector
+```
+
+And you can have levels with no observations:
+
+```{r}
+fctr_vector <- fctr_vector[fctr_vector != "medium"]
+summary(fctr_vector)
+```
+
+The order of these levels is alphabetical by default, but it can be changed:
+
+```{r}
+fctr_vector <- factor(char_vector, levels = c("low", "medium", "high"))
+levels(fctr_vector)
+```
+
+"Behind the scenes" R encodes each level of a factor as an integer number.
+
+```{r}
+char_vector
+as.numeric(fctr_vector)
+```
+
+So be careful when converting factors that look like numbers! 
+
+```{r}
+x <- factor(c(2, 4, 5, 2, 2))
+x
+as.numeric(x)
+```
+
+One way to solve this problem is doing the following:
+
+```{r}
+# First convert to a character type and then to numeric type
+as.numeric(as.character(x))
+```
+
+See more about factors [here](http://www.datacarpentry.org/R-ecology-lesson/02-starting-with-data.html#factors).
+
+
+# Some key points to remember 
+
+* There are different types of variables in R: numeric, character, logical, 
+factor.
+* Always check what type of variables you have in a data.frame.
+    + for example with `vis_dat()` from the `visdat` package
+* Always check for missing values in your data.
+    + for example with `vis_miss()` from the `visdat` package
+* You can subset data based on certain conditions using "conditional operators" 
+(`>`, `<`, `>=`, `<=`, `==`, `!=`, `&`, `|`).
+* Factors are special kinds of categorical variables important for statistical 
+analysis (more on Days 2 and 3 of the course).
+
+
+
+

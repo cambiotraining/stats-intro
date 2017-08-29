@@ -1,0 +1,89 @@
+---
+title: "Data Organisation in Spreadsheets"
+date: "28 August 2017"
+output: html_document
+---
+
+In this course we're going to learn basic statistics using the statistical 
+software R. 
+This software has a bit of a steep learning curve, because running analysis 
+involves writting down "instructions" using a specific syntax. 
+However, it provides with a huge **flexibility**, and has many extensions to analyse 
+specific types of data from different scientifc fields (e.g. ecology, 
+geography, psychology, economics, biology, etc...).
+
+It also makes it easy to make data analysis **reproducible**,
+because we can keep all these "instructions" within a text file that can be 
+used, re-used and adapted to new datasets.
+
+Therefore, we're going to spend the first day just learning about R, so that 
+everyone has basic knowledge of how it works.
+
+But before we even start with R, we're going to cover a crucial aspect of data 
+analysis: **organising and tidying data**, so that it is ready for analysis. 
+Although this is often seen as a "boring" and "unrewarding" task, it is absolutely 
+vital to ensure that your data analysis efforts run smoothly later on - and 
+ensures that you can make the most out of your data!
+
+
+# Data Organisation (in spreadsheets)
+
+In this session, we're going to learn:
+
+* to recognise and apply principles and good practices for organising your data
+* to recognise common pitfalls when recording data (and learn to avoid them!)
+* to understand file formats and their suitability for other programs (e.g. R)
+
+
+### Data Organisation - best practices
+
+* Never modify the raw data - always work on a copy of it.
+* Keep track of any modifications you make to the raw data.
+  * for example write notes on a README.txt file or on a separate worksheet of 
+  the spreadsheet file.
+* Columns should contain single variables (the things that were measured).
+* Rows should contain the observations (the units of study).
+
+**Exercise**: 
+
+```
+- Open the "dataset_messy.xls" spreadsheet located in the course 
+  materials folder ("Desktop > course_materials > Day1 > data")
+  
+- Tidy this data applying the best practices above
+
+- Open discussion: what problems did you find? And how did you solve them?
+```
+
+
+### Data Organisation - formatting problems
+
+* Data should not be placed on separate tables and worksheets.
+* Zeros should be recorded as zero. Missing values should be recorded as empty 
+cells or as "NA".
+* Comments should be avoided. Always try to assign things to individual variables.
+* Avoid special characters in the column names (and avoid spaces).
+* Be *very* careful with date formatting in spreasheets:
+  * different spreadsheet programs (or versions) assume different things.
+  * To avoid problems, store the day, month and year in separate variables. 
+
+See more about these topics in the 
+[Data Carpentry materials](http://www.datacarpentry.org/spreadsheet-ecology-lesson/).
+
+
+### Data Organisation - exporting data from spreadsheets
+
+If possible, store/distribute data in a text-based format. 
+_CSV_ (comma-separated-values) is a commonly used format:
+
+```
+species,year,month,day,weight_kg,height_cm
+mouse,2014,3,21,2,10
+dog,2013,7,2,20,60
+cat,2016,12,7,4.2,25
+```
+
+This can be done from any spreadsheet program by choosing "`Save As`" and then 
+selecting the file format to be "_CSV_".
+
+

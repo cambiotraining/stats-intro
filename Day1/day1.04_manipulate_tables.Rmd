@@ -1,0 +1,261 @@
+---
+title: "Manipulating data.frame"
+date: "29 August 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+So far we've learned some basics of manipulating data.frame objects and how 
+we can use conditional operations to subset vectors. Now, we're going to combine 
+these skills to make more advanced table manipulations. We will learn:
+
+* How to filter a data.frame based on certain conditions
+* How to summarise data across groups
+
+This session is adapted from 
+[this lesson](http://www.datacarpentry.org/R-ecology-lesson/03-dplyr.html) 
+of the Data Carpentry materials. 
+
+We will continue using the `surveys` dataset and the `tidyverse` package:
+
+```{r, message=FALSE}
+# Load the package
+library(tidyverse)
+
+# Read the data
+surveys <- read_csv("data/surveys_data_short.csv")
+```
+
+# Advanced manipulations with dplyr
+
+`dplyr` is a package that comes included in the `tidyverse` package that we've 
+been using. It contains many functions to manipulate data.frame objects.
+
+We can think of dplyr functions as verbs. We will talk about the following:
+
+* `select` - to select specific columns
+* `filter` - to filter rows
+* `mutate` - to modify existing columns or create new ones
+* `group_by` - to define groups within our data.frame
+* `summarise` - to apply functions to groups
+* `count` - to count observations in groups
+
+Every `dplyr` function sticks to these rules:
+
+* **The first argument (input) of every `dplyr` function is a data.frame.**
+* **The output of every `dplyr` function is a data.frame**
+
+## Subset a data.frame with `filter()`
+
+Earlier, we've written a condition to obtain the weights of individuals of the 
+"PH" species that have a hindfoot length greater than 25mm:
+
+```{r}
+# Make a logical operator for which the species ID is equal to "PH"
+ph_hindfoot25 <- surveys$species_id == "PH" & surveys$hindfoot_length > 25
+
+# Subset the weights based on that condition
+surveys$weight[ph_hindfoot25]
+```
+
+But what if we wanted not just a vector of those weights, but a subset of the 
+table that fullfilled that condition?
+
+With `filter()` we could do it like this:
+
+```{r}
+filter(surveys, species_id == "PH" & hindfoot_length > 25)
+```
+
+Notice two things from here:
+
+* The first argument of the function is the data.frame, as we said before
+* Then we introduce the condition, but we don't need to use `$` anymore, because 
+the function knows that those are columns of the data.frame we gave to it.
+
+**This applies to every `dplyr` function.**
+
+
+## Create/modify data.frame variables with `mutate()`
+
+A very common manipulation to make in data.frame objects is to create new 
+variables or modify existing ones. We can do this with the `mutate()` function.
+
+For example, if we wanted to create a new variable that contained the weight in 
+Kg:
+
+```{r}
+mutate(surveys, weight_kg = weight / 1000)
+```
+
+We can also modify/create more than one variable, separating them by `,`:
+
+```{r}
+mutate(surveys, weight_kg = weight / 1000, hindfoot_cm = hindfoot_length / 10)
+```
+
+If we use the name of an existing variable, it will modify it instead. For example:
+
+```{r}
+mutate(surveys, weight = weight / 1000, hindfoot_cm = hindfoot_length / 10)
+```
+
+> Add a new column to the surveys data.frame called `heavy` containing logical 
+values of whether or not the individual's weight is above or equal to 200g
+
+```{r}
+# put your code here!
+```
+
+
+## Chain commands with `%>%`
+
+Now let's say that we wanted to do several manipulations in our data.frame:
+
+* Create a new column containing weight in Kg
+* Filter our data so that it only contains individuals collected in the 90's
+* Retain only two columns from our table: `species_id` and `year`
+
+Based on what we've learned so far, we could for example do the following:
+
+```{r}
+# Create the new variable with mutate
+filtered_surveys <- mutate(surveys, weight_kg = weight/1000)
+
+# Filter this new table to retain only collections in the 90's
+filtered_surveys <- filter(filtered_surveys, year >= 1990 & year < 2000)
+
+# Use select to retain the two columns of interest
+filtered_surveys <- select(filtered_surveys, year, species_id)
+```
+
+Someone might even attempt to write this code like this (can you read it!?!):
+
+```{r}
+# Mutate, filter and select all nested within each other
+filtered_surveys <- select(filter(mutate(surveys, weight_kg = weight/1000), year >= 1990 & year < 2000), year, species_id)
+```
+
+The above two solutions have some disadvantages. In the first case we had to create 
+several intermediate variables before we got to the final result that we were 
+interested in. In the second case, it's clearly very difficult code to read.
+
+`dplyr` allows to "chain" several commands using a special "pipe" function `%>%`.
+This is how the above code could have been written using this trick:
+
+```{r, eval = FALSE}
+surveys %>% 
+  mutate(weight_kg = weight/1000) %>% 
+  filter(year >= 1990 & year < 2000) %>% 
+  select(year, species_id)
+```
+
+Essentially, what the `%>%` "pipe" does is send the output of the expression on its 
+left and passes it as the **first** input of the function on its right. And this 
+works very well with `dplyr` functions, because of the two rules that every one 
+of its functions follows: first argument is a table; output is a table.
+
+>Create a new data frame from the survey data that meets the following criteria: 
+>
+>* contains only the species_id column and a new column called hindfoot_half
+>* hindfoot_half will contain values that are half the hindfoot_length values
+>* In this hindfoot_half column, there are no NAs and all values are less than 30
+
+```{r}
+# put your code here!
+```
+
+
+## Summarise data with `group_by()` and `summarise()`
+
+One of our purposes from the beggining of this R session was to summarise our 
+data into a smaller table with the mean weight and hindfoot length of each species 
+and each sex. 
+
+This kind of operation can be achieved by combining two `dplyr` functions 
+together: `group_by()` and `summarise`. Here is how it works:
+
+```{r}
+surveys %>% 
+  group_by(genus) %>% 
+  summarise(mean_weight = mean(weight))
+```
+
+The function `group_by` does not change our initial table, but it adds to it some 
+information that we want to do some operations within groups. The `summarise` 
+function then works within each group, by applying the functions we ask it to. 
+
+Like with `mutate()`, with `summarise()` we can also create more than one variable 
+at once, for example:
+
+```{r}
+surveys %>% 
+  group_by(genus) %>% 
+  summarise(mean_weight = mean(weight), max_weight = max(weight))
+```
+
+We can also group a table by more than one group, for example:
+
+```{r}
+surveys %>% 
+  group_by(genus, species) %>% 
+  summarise(mean_weight = mean(weight), max_weight = max(weight))
+```
+
+> Using `group_by()` and `summarize()` create a new table called `surveys_summary` 
+with the mean, minimum and max hindfoot length and weight for each `species_id` and `sex`
+>
+> Create a scatter plot showing the relationship between the average weight and 
+hindfoot length of each species
+
+```{r}
+# put your code here!
+```
+
+
+## Count occurrences in groups
+
+Often, it's useful to count how many occurrences of each variable (or variables) 
+we have in a dataset. This can be achieved with the `count()` function, which 
+works like this:
+
+```{r}
+# Count occurrences of each genus
+surveys %>% count(genus)
+
+# Count occurrences of each genus and species
+surveys %>% count(genus, species)
+```
+
+
+# Saving data to a file
+
+After all our data manipulations, we might want to save some new table into a file.
+
+Let's say that we were to remove all the missing data from our data to share it 
+with a collaborator (or later use in R ourselves):
+
+```{r}
+# Remove missing values from the data
+surveys_clean <- surveys %>% 
+  filter(!is.na(hindfoot_length))
+```
+
+In the same way that there is a `read_csv()` function, there is also a 
+`write_csv()`. This is how it works:
+
+```{r, eval = FALSE}
+write_csv(surveys_clean, file = "data/surveys_clean.csv")
+```
+
+> Try opening this file in a spreadsheet!
+
+
+# Some key points to remember
+
+* `dplyr` has several useful functions to manipulate data.frame objects
+* `dplyr` functions can be "chained" together using the `%>%` pipe
+* We can save data.frame to text-based files using the `write_*` family of functions
