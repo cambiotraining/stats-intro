@@ -11,7 +11,7 @@ Lecture:
 [Experimental Design](Day1/ExperimentalDesignSlidesDec2016_Final.pdf)
 
 Practicals:
-[Data organization and introduction to R](https://rawgit.com/cambiotraining/stats-intro/master/Day1/day1_slides.html)
+[Data organization and introduction to R](Day1/README.md)
 
 
 ## Day 2
