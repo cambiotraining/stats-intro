@@ -2,13 +2,13 @@
 
 This three day course is intended to open doors to applying statistics using R.
 
-Full course description [here](https://www.training.cam.ac.uk/event/2034285).
+Full course description [here](https://www.training.cam.ac.uk/event/2156934).
 
 
 ## Day 1
 
 Lecture: 
-[Experimental Design](Day1/ExperimentalDesignSlidesDec2016_Final.pdf)
+[Experimental Design](Day1/ExperimentalDesignSlidesAug2017_Final.pdf)
 
 Practicals:
 [Data organization and introduction to R](Day1/README.md)
