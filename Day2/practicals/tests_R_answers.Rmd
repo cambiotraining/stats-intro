@@ -283,7 +283,9 @@ As before, the Central Limit Theorem allows us to use this test when the sample 
 
 Just like the other t-tests, this can also be two-sided or one-sided, depending on what alternative hypothesis is of interest.
 
-## Are the data normal?
+## Are the data normal (and does it matter)?
+
+### Visual inspection of data distributions
 
 A key assumption of all the previous tests was that that data were normally distributed.
 We can check this with histograms:
@@ -331,8 +333,64 @@ qqline(effect)
 ```
 
 Major deviations from the diagonal indicate there may be problems with using t-tests.
-(Though this is generally difficult to check with few observations in most experimental datasets.
-Formal tests for deviation from normality exist, but they are less useful than one would expect.)
+
+### Testing for non-normality
+
+Let's try out the Shapiro-Wilk test of normality.
+
+```{r}
+isnorm <- rnorm(100)
+shapiro.test(isnorm)
+notnorm <- rexp(100)
+shapiro.test(notnorm)
+```
+
+How useful is it in practice?
+Let's try and use it in conjunction with a t-test.
+(See if you understand what's happening in the code below!)
+
+```{r}
+niters <- 10000
+nobs <- 100
+t.p <- shap.p <- numeric(niters)
+for (it in seq_len(niters)) {
+    g1 <- rexp(nobs) # Not normal!
+    g2 <- rexp(nobs) # Not normal!
+    t.p[it] <- t.test(g1, g2)$p.value
+    shap.p[it] <- shapiro.test(g1)$p.value
+}
+par(mfrow=c(1,2))
+hist(t.p, main="T-test p-values", xlim=c(0,1), col="grey")
+hist(shap.p, main="SW test p-values", xlim=c(0,1), col="grey")
+```
+
+Here, `g1` and `g2` are drawn from the same distribution.
+What should the p-value distribution look like if the t-test is working properly?
+(Hint: what is the meaning of a p-value?)
+
+Now let's try it again, but with fewer samples in `nobs`:
+
+```{r}
+niters <- 10000
+nobs <- 5
+t.p <- shap.p <- numeric(niters)
+for (it in seq_len(niters)) {
+    g1 <- rexp(nobs) # Not normal!
+    g2 <- rexp(nobs) # Not normal!
+    t.p[it] <- t.test(g1, g2)$p.value
+    shap.p[it] <- shapiro.test(g1)$p.value
+}
+par(mfrow=c(1,2))
+hist(t.p, main="T-test p-values", xlim=c(0,1), col="grey")
+hist(shap.p, main="SW test p-values", xlim=c(0,1), col="grey")
+```
+
+You can see that:
+
+- The SW test rejects normality when it doesn't matter 
+- The SW test sometimes fails to reject normality when it does matter 
+
+It's often a good idea to whip up a few simulations to see if your analyses are affected by your particular data set.
 Whenever possible, it's generally safer to use non-parametric tests.
 
 # Non-parametric tests of various flavours
@@ -364,8 +422,20 @@ Key assumptions include:
 
 No normality required.
 
-__Note:__ The test outcome can be interpreted as a shift in medians, but only if the shape of the distribution does not change between groups.
-It's worthwhile looking at the data as a sanity check during interpretation:
+__Note:__ The test outcome can be interpreted as a shift in location (mean/median), but only if the shape of the distribution does not change between groups.
+Let's see what happens in a case with two distributions that have the same median:
+
+```{r}
+set.seed(10000)
+g1 <- rnorm(1000, 1)
+g2 <- rexp(1000, rate=log(2))
+median(g1) # should be pretty similar
+median(g2)
+wilcox.test(g1, g2) 
+boxplot(g1, g2) 
+```
+
+Thus, it's worthwhile looking at the data as a sanity check during interpretation:
 
 ```{r}
 boxplot(list(Soybean=on.soy, Sunflower=on.sun), ylab="Weight (g)") 
