@@ -336,9 +336,10 @@ hist(t.p, main="T-test p-values", xlim=c(0,1), col="grey")
 hist(shap.p, main="SW test p-values", xlim=c(0,1), col="grey")
 ```
 
-Here, `g1` and `g2` are drawn from the same distribution.
+Here, `g1` and `g2` are drawn from the same distribution, i.e., the null hypothesis is true.
 What should the p-value distribution look like if the t-test is working properly?
-(Hint: what is the meaning of a p-value?)
+(Hint: what is the meaning of a p-value when the null is true?)
+What is the Shapiro-Wilk test telling us?
 
 Now let's try it again, but with fewer samples in `nobs`:
 
@@ -357,13 +358,16 @@ hist(t.p, main="T-test p-values", xlim=c(0,1), col="grey")
 hist(shap.p, main="SW test p-values", xlim=c(0,1), col="grey")
 ```
 
+Is the t-test working properly here?
+What is the Shapiro-Wilk test telling us?
+
 You can see that:
 
 - The SW test rejects normality when it doesn't matter.
-- The SW test sometimes fails to reject normality when it does matter 
+- The SW test sometimes fails to reject normality when it does matter.
 
 It's often a good idea to whip up a few simulations to see if your analyses are affected by your particular data set.
-t-tests _can_ be robust to non-normality, but not always; so whenever possible, it's generally safer to use non-parametric tests.
+t-tests _can_ be robust to non-normality, _but not always_; so whenever possible, it's generally safer to use non-parametric tests.
 
 # Non-parametric tests of various flavours
 
