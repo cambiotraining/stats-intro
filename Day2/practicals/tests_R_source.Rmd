@@ -188,8 +188,6 @@ The one-sample $t$-test assumes that:
 
 - Observations are **normally distributed**.
 
-When the sample size is large (rule of thumb: > 30 observations), the Central Limit Theorem allows us to use this test, even when the data are not normal!
-
 Let's say I don't want to waste energy during winter, so I want to check whether the temperature is above 25 degrees Celsius.
 Here, my null hypothesis is that the temperature is below or equal to 25 degrees.
 My alternative hypothesis is that the temperature is above 25 degrees.
@@ -234,8 +232,6 @@ The two-sample $t$-test assumes that
 - Observations are independent **between** the groups.
 
 - Observations are normally distributed **within** each group.
-
-Again, the Central Limit Theorem allows us to use this test for non-normal data when the sample size is large (rule of thumb: > 30 observations per group).
 
 The test is still valid if the groups are of unequal size (i.e., "unbalanced"), though greater power is usually achieved if they are equal.
 
@@ -293,8 +289,6 @@ However, the paired $t$-test does not assume independence between the groups. In
 - Pairs of samples are randomly drawn from a population (i.e., each pair is **independent** from all the others).
 
 - Differences between paired observations are normally distributed.
-
-As before, the Central Limit Theorem allows us to use this test when the sample size is large (rule of thumb: > 30 pairs of observations).
 
 Just like the other t-tests, this can also be two-sided or one-sided, depending on what alternative hypothesis is of interest.
 
@@ -405,11 +399,11 @@ hist(shap.p, main="SW test p-values", xlim=c(0,1), col="grey")
 
 You can see that:
 
-- The SW test rejects normality when it doesn't matter 
+- The SW test rejects normality when it doesn't matter.
 - The SW test sometimes fails to reject normality when it does matter 
 
 It's often a good idea to whip up a few simulations to see if your analyses are affected by your particular data set.
-Whenever possible, it's generally safer to use non-parametric tests.
+t-tests _can_ be robust to non-normality, but not always; so whenever possible, it's generally safer to use non-parametric tests.
 
 # Non-parametric tests of various flavours
 
