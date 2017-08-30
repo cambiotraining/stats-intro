@@ -248,7 +248,7 @@ In the same way that there is a `read_csv()` function, there is also a
 `write_csv()`. This is how it works:
 
 ```{r, eval = FALSE}
-write_csv(surveys_clean, file = "data/surveys_clean.csv")
+write_csv(surveys_clean, path = "data/surveys_clean.csv")
 ```
 
 > Try opening this file in a spreadsheet!

@@ -374,7 +374,7 @@ surveys %&gt;% count(genus, species)</code></pre>
 surveys_clean &lt;- surveys %&gt;% 
   filter(!is.na(hindfoot_length))</code></pre>
 <p>In the same way that there is a <code>read_csv()</code> function, there is also a <code>write_csv()</code>. This is how it works:</p>
-<pre class="r"><code>write_csv(surveys_clean, file = &quot;data/surveys_clean.csv&quot;)</code></pre>
+<pre class="r"><code>write_csv(surveys_clean, path = &quot;data/surveys_clean.csv&quot;)</code></pre>
 <blockquote>
 <p>Try opening this file in a spreadsheet!</p>
 </blockquote>

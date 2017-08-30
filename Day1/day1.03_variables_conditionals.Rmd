@@ -206,6 +206,7 @@ Relational operators:
 * `>=` is greater than or equal to
 
 Logical operators:
+
 * `&` AND
 * `|` OR
 
