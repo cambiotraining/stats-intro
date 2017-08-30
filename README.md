@@ -17,13 +17,13 @@ Practicals:
 ## Day 2
 
 Lecture:
-[Introduction to statistics](Day2/lectures/StatsIntro_April2017.pdf)
+[Introduction to statistics](Day2/lectures/StatsIntro_Aug2017.pdf)
 
 Practical:
 [Descriptive statistics using R](Day2/practicals/teaching_R_questions.Rmd)
 
 Lecture:
-[Hypothesis testing](Day2/lectures/HypothesisTesting_April2017.pdf)
+[Hypothesis testing](Day2/lectures/HypothesisTesting_Aug2017.pdf)
 
 Practical:
 [Statistical tests using R](Day2/practicals/tests_R_questions.Rmd)
