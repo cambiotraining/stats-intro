@@ -212,8 +212,8 @@ This allows me to calculate the average (i.e., "fitted value") for each group of
 
 - for the untreated individuals, the average is just `B_0 = 60`
 - for the drug A-treated individuals, the average is `B_0 + B_A = 70`
-- for the drug Z-treated individuals, the average is `B_0 + B_Y = 65`
-- for the drug A and Z-treated individuals, the average is `B_0 + B_X + B_Z = 75`
+- for the drug Z-treated individuals, the average is `B_0 + B_Z = 65`
+- for the drug A and Z-treated individuals, the average is `B_0 + B_A + B_Z = 75`
 
 In short, the relationship between the dependent variable (weight) and my independent variables (drug treatment) is a linear sum of the coefficients.
 
@@ -457,10 +457,10 @@ That is, my null hypothesis is that no disease has an effect on the score.
 anova(fit) ## ANSWER ##
 ```
 
-<!--
 ## Using interaction terms
 
-Going back to my drug treatment example from the start:
+Let's consider a drug treatment example with two drugs, X and Y.
+We have patients who are treated (`"t"`) or not (`"n"`) with each drug, and we measure their weights:
 
 ```{r}
 weights <- c(60.5, 62.1, 60.7, 60.0, 62.1, 62.3, 62.0, 63.9, 62.1, 69.8, 70.4, 71.0)
@@ -503,7 +503,7 @@ y.only   <- mean(weights[with.X=="n" & with.Y=="t"])
 # Put some code here!
 x.only - baseline ## ANSWER ##
 y.only - baseline ## ANSWER ##
-  both - baseline ## ANSWER ##
+  both - (x.only - baseline) - (y.only - baseline) ## ANSWER ##
 ```
 
 __NOTE:__ Currently, `with.Xt` represents the effect of X _in the absence of Y_ (and vice versa for `with.Yt`).
@@ -515,7 +515,6 @@ weights.mod <- c(60.5, 62.1, 60.7, 65.0, 66.1, 65.3, 62.0, 63.9, 62.1, 59.8, 50.
 summary(lm(weights.mod ~ with.X + with.Y + with.X:with.Y)) # with.Xt is positive...
 mean(weights.mod[with.X=="t"]) - mean(weights.mod[with.X=="n"]) # but average X effect is negative!
 ```
--->
 
 ## Covariates vs factors
 
