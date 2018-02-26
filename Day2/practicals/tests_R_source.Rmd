@@ -403,7 +403,7 @@ What is the Shapiro-Wilk test telling us?
 
 You can see that:
 
-- The SW test rejects normality when it doesn't matter.
+- The SW test sometimes rejects normality when it doesn't matter.
 - The SW test sometimes fails to reject normality when it does matter.
 
 It's often a good idea to whip up a few simulations to see if your analyses are affected by your particular data set.
