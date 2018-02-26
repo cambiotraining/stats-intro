@@ -252,9 +252,10 @@ This is a one-sided, two-sample t-test (whereas the previous test was a two-side
 How can I do this with `t.test`?
 
 ```{r}
+# Note that alternative='greater' checks for "first argument > second".
+# Conversely, alternative='less' checks for "first argument < second".
 # Put some code here!
 t.test(on.sun, on.soy, alternative="greater") ## ANSWER ##
-# Note that 'greater' checks for "the first argument ('on.sun') > second ('on.soy')". ## ANSWER ##
 ```
 
 ## Paired samples t-test
