@@ -227,6 +227,8 @@ This is a one-sided, two-sample t-test (whereas the previous test was a two-side
 How can I do this with `t.test`?
 
 ```{r}
+# Note that alternative='greater' checks for "first argument > second".
+# Conversely, alternative='less' checks for "first argument < second".
 # Put some code here!
 ```
 
@@ -443,11 +445,25 @@ Key assumptions include:
 
 Again, no normality required.
 
-__Note:__ Asymmetry can cause rejection without any actual shift in the median or mean of the differences.
-Thus, it's useful to examine the distribution of differences to check for a shift:
+__Note:__ Again, it's useful to examine the distribution of differences to check for a shift:
 
 ```{r}
 # Put some code here!
+```
+
+This is because asymmetry can cause rejection without any actual shift in the median (or mean) of the differences:
+
+```{r}
+X <- jitter(rep(c(0, 0, 0), 50))
+Y <- jitter(rep(c(-1, 0, 3), 50))
+
+# No shift in the median; same number above/below zero.
+median(X-Y)
+sum(X>Y)
+sum(X<Y)
+
+wilcox.test(X, Y, paired=TRUE)
+hist(X-Y, col="grey80", xlab="Difference")
 ```
 
 # Session information
