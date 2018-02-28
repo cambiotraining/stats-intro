@@ -17,13 +17,13 @@ Practicals:
 ## Day 2
 
 Lecture:
-[Introduction to statistics](Day2/lectures/StatsIntro_Aug2017.pdf)
+[Introduction to statistics](Day2/lectures/StatsIntro_March2018.pdf)
 
 Practical:
 [Descriptive statistics using R](Day2/practicals/teaching_R_questions.Rmd)
 
 Lecture:
-[Hypothesis testing](Day2/lectures/HypothesisTesting_Aug2017.pdf)
+[Hypothesis testing](Day2/lectures/HypothesisTesting_March2018.pdf)
 
 Practical:
 [Statistical tests using R](Day2/practicals/tests_R_questions.Rmd)
@@ -32,13 +32,13 @@ Practical:
 ## Day 3
 
 Lecture:
-[Linear regression](Day3/lectures/LinearRegression_April2017.pdf)
+[Linear regression](Day3/lectures/LinearRegression_March2018.pdf)
 
 Practical:
 [Linear regression using R](Day3/practicals/linear_R_questions.Rmd)
 
 Lecture:
-[Multiple testing correction](Day3/lectures/MultipleTesting_April2017.pdf)
+[Multiple testing correction](Day3/lectures/MultipleTesting_March2018.pdf)
 
 Practical:
 [Multiple testing correction using R](Day3/practicals/multiple_R_questions.Rmd)
