@@ -8,7 +8,7 @@ Full course description [here](https://www.training.cam.ac.uk/event/2156934).
 ## Day 1
 
 Lecture: 
-[Experimental Design](Day1/ExperimentalDesignSlidesAug2017_Final.pdf)
+[Experimental Design](Day1/ExperimentalDesignSlidesFeb2018_Final.pdf)
 
 Practicals:
 [Data organization and introduction to R](Day1/README.md)
