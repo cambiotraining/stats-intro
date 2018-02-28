@@ -162,11 +162,22 @@ of its functions follows: first argument is a table; output is a table.
 >
 >* contains only the species_id column and a new column called hindfoot_half
 >* hindfoot_half will contain values that are half the hindfoot_length values
->* In this hindfoot_half column, there are no NAs and all values are less than 30
+>* In this hindfoot_half column, there are no NAs 
+>* And we want only individuals that weight less than 30g
+> Note: the final table should have 402 rows
 
 ```{r}
 # put your code here!
 ```
+
+```{r, echo = FALSE, eval = FALSE}
+# Solution
+surveys %>% 
+  mutate(hindfoot_half = hindfoot_length/2) %>% 
+  filter(weight < 20 & !is.na(hindfoot_half)) %>% 
+  select(species_id, hindfoot_half)
+```
+
 
 
 ## Summarise data with `group_by()` and `summarise()`
@@ -228,6 +239,17 @@ surveys %>% count(genus)
 
 # Count occurrences of each genus and species
 surveys %>% count(genus, species)
+```
+
+It's also possibly to include the counts in the output of `summarise()`, in 
+which case we have to use the special function `n()`:
+
+```{r}
+surveys %>% 
+  group_by(genus, species) %>% 
+  summarise(mean_weight = mean(weight), 
+            max_weight = max(weight),
+            n = n())
 ```
 
 
